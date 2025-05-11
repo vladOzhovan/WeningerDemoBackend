@@ -1,0 +1,39 @@
+﻿# Build results
+bin/
+obj/
+*.dll
+*.exe
+
+# User-specific files
+*.user
+*.suo
+*.userosscache
+*.sln.docstates
+
+# VSCode
+.vscode/
+
+# Visual Studio
+.vs/
+
+# ASP.NET Secrets
+secrets.json
+
+# Logs
+*.log
+
+# Configuration
+appsettings.*.json
+!appsettings.json       # <-- Оставляем базовый конфиг
+
+# Others
+*.db
+*.pidb
+*.cache
+*.pdb
+
+# Rider (если используешь JetBrains)
+.idea/
+
+# macOS
+.DS_Store
