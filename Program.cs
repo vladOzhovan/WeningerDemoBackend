@@ -17,19 +17,13 @@ namespace WeningerDemoProject
     {
         public static async Task Main(string[] args)
         {
-            #region
-            //builder.Services.AddSwaggerGen(c =>
-            //{
-            //    var xmlFilename = $"{Assembly.GetExecutingAssembly().GetName().Name}.xml";
-            //    c.IncludeXmlComments(Path.Combine(AppContext.BaseDirectory, xmlFilename));
-            //});
-            #endregion
-
             var builder = WebApplication.CreateBuilder(args);
 
+            // Clears default logging providers and adds console logging only
             builder.Logging.ClearProviders();
             builder.Logging.AddConsole();
 
+            // Adds CORS support with a permissive "AllowAll" policy that allows any origin, method, and header
             builder.Services.AddCors(options =>
             {
                 options.AddPolicy("AllowAll", builder =>
@@ -144,17 +138,13 @@ namespace WeningerDemoProject
                 }
             }
 
-            var logger = app.Services.GetRequiredService<ILogger<Program>>();
-            logger.LogError("Startup complete — logger works!");
-
             if (app.Environment.IsDevelopment())
-            {
                 app.UseDeveloperExceptionPage();
-            }
 
             app.UseCors("AllowAll");
 
             app.UseSwagger();
+
             app.UseSwaggerUI(c =>
             {
                 c.SwaggerEndpoint("/swagger/v1/swagger.json", "Demo API V1");

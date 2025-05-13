@@ -182,5 +182,36 @@ namespace WeningerDemoProject.Controllers
                 return StatusCode(500, "Failed to delete user.");
             }
         }
+
+        [HttpGet("users")]
+        [Authorize(Roles = "Admin")]
+        public async Task<IActionResult> GetAllUsers()
+        {
+            try
+            {
+                var users = await _userManager.Users.ToListAsync();
+
+                var userDtos = new List<UserDto>();
+
+                foreach (var user in users)
+                {
+                    var roles = await _userManager.GetRolesAsync(user);
+                    userDtos.Add(new UserDto
+                    {
+                        Id = user.Id,
+                        UserName = user.UserName,
+                        Email = user.Email,
+                        Roles = roles.ToList()
+                    });
+                }
+
+                return Ok(userDtos);
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, "Error retrieving users");
+                return StatusCode(500, "Internal server error");
+            }
+        }
     }
 }
