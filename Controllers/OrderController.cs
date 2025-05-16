@@ -66,8 +66,8 @@ namespace WeningerDemoProject.Controllers
         {
             var orders = await _orderRepo.GetByCustomerNumberAsync(customerNumber);
 
-            if (!orders.Any())
-                return NotFound("No orders found for this customer number");
+            //if (!orders.Any())
+            //    return NotFound("No orders found for this customer number");
 
             var ordersDto = orders.Select(o => o.ToOrderDto());
 

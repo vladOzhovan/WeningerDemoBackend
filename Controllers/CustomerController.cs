@@ -4,6 +4,7 @@ using WeningerDemoProject.Dtos.Customer;
 using WeningerDemoProject.Helpers;
 using WeningerDemoProject.Interfaces;
 using WeningerDemoProject.Mappers;
+using WeningerDemoProject.Models;
 using WeningerDemoProject.Validators;
 
 namespace WeningerDemoProject.Controllers
@@ -122,6 +123,23 @@ namespace WeningerDemoProject.Controllers
                 return NotFound("Customer not found");
 
             return Ok(customerModel.ToCustomerDto());
+        }
+
+        /// <summary>
+        /// Generate customers
+        /// </summary>
+        /// <param name="count"></param>
+        /// <returns></returns>
+        [HttpPost("generate-customers")]
+        [Authorize(Roles = "Admin")]
+        public async Task<IActionResult> GenerateCustomers(int count)
+        {
+            if (count <= 0)
+                return BadRequest("Count must be greater than 0");
+
+            var customers = await _customerRepo.GenerateCustomerList(count);
+
+            return Ok(customers.Select(c => c.ToCustomerDto()).ToList());
         }
     }
 }

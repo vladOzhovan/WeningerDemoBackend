@@ -11,9 +11,13 @@ namespace WeningerDemoProject.Repository
     public class CustomerRepository : ICustomerRepository
     {
         private readonly AppDbContext _context;
-        public CustomerRepository(AppDbContext context)
+        private readonly ILogger<CustomerRepository> _logger;
+        private readonly Random _random;
+        public CustomerRepository(AppDbContext context, ILogger<CustomerRepository> logger, Random random)
         {
             _context = context;
+            _logger = logger;
+            _random = random;
         }
 
         public async Task<Customer> CreateAsync(Customer customerModel)
@@ -78,9 +82,10 @@ namespace WeningerDemoProject.Repository
                 }
             }
 
-            var skipNumber = (query.PageNumber - 1) * query.PageSize;
+            //var skipNumber = (query.PageNumber - 1) * query.PageSize;
+            //return await customers.Skip(skipNumber).Take(query.PageSize).ToListAsync();
 
-            return await customers.Skip(skipNumber).Take(query.PageSize).ToListAsync();
+            return await customers.ToListAsync();
         }
 
         public async Task<Customer?> GetByIdAsync(int id)
@@ -113,5 +118,51 @@ namespace WeningerDemoProject.Repository
             return await _context.Customers.Where(c => c.CustomerNumber == customerNumber).
                 Select(c => (int?)c.Id).FirstOrDefaultAsync();
         }
+
+        public async Task<List<Customer>> GenerateCustomerList(int count)
+        {
+            
+            var customerList = new List<Customer>();
+
+            var firstNames = new[] { "Alfred", "Alisa", "Arnold", "Amina", "Arno", "Alex" , "Ben", "Bella", "Brayan", 
+                "Briana", "Bred", "Candy", "Chriss", "Diana", "Den", "Illiana", "Fred", "Frederik", "Holly", 
+                "Jekki", "John", "Julia", "Kianu", "Kriss", "Kayla", "Liam", "Katarina", "Layla", "Liam", 
+                "Michael", "Neo", "Rayan", "Rummi", "Sara", "Sabrina", "Thomas", "Uliana" };
+
+            var secondNames = new[] { "Abend", "Affleck", "Agnes", "Bail", "Born", "Beggins", "Backer", "Billa", 
+                "Billigan", "Berry", "Chan", "Hichkock", "Hocking", "Johnson", "Jordon",  "Hichkock", "Hocking", 
+                "Kennedy", "Konnor", "Linkoln", "Malek", "Nison", "Nickolson", "Pitt", "Pratt", "Riwz", "Schwarzenegger", 
+                "Surr", "Sina", "Villian", "Woker", "Xerks" };
+
+            int maxCustomerNumber = await _context.Customers.AnyAsync() 
+                ? await _context.Customers.MaxAsync(c => c.CustomerNumber)
+                : 10001;
+
+            int firstNumberOfCustomerInList = 10001;
+
+            if (maxCustomerNumber != 0)
+                firstNumberOfCustomerInList = maxCustomerNumber + 1;
+
+            for (int i = 0; i < count; i++)
+            {
+
+                customerList.Add(new Customer
+                {
+                    CustomerNumber = firstNumberOfCustomerInList + i,
+                    FirstName = firstNames[_random.Next(firstNames.Length)],
+                    SecondName = secondNames[_random.Next(secondNames.Length)]
+                });
+            }
+
+            await _context.Customers.AddRangeAsync(customerList);
+            await _context.SaveChangesAsync();
+            
+            _logger.LogInformation("{Count} test customers generated starting from #{StartNumber}",
+                count, firstNumberOfCustomerInList);
+            
+            return customerList;
+        }
+
+
     }
 }

@@ -14,5 +14,6 @@ namespace WeningerDemoProject.Interfaces
         Task<Customer?> GetByNumberAsync(int customerNumber);
         Task<bool> CustomerExists(int id);
         Task<int?> GetCustomerIdByNumberAsync(int customerNumber);
+        Task<List<Customer>> GenerateCustomerList(int count);
     }
 }

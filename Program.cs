@@ -119,6 +119,8 @@ namespace WeningerDemoProject
             builder.Services.AddScoped<IOrderRepository, OrderRepository>();
             builder.Services.AddScoped<ITokenService, TokenService>();
 
+            builder.Services.AddSingleton<Random>();
+
             var app = builder.Build();
 
             // Chek if Admin and User roles exists
