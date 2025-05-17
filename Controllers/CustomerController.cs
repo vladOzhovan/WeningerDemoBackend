@@ -106,6 +106,24 @@ namespace WeningerDemoProject.Controllers
         }
 
         /// <summary>
+        /// Delete multiple
+        /// </summary>
+        /// <param name="ids"></param>
+        /// <returns></returns>
+        [HttpPost("delete-multiple")]
+        [Authorize(Roles = "Admin")]
+        public async Task<IActionResult> DeleteMultiple([FromBody] List<int> ids)
+        {
+            if (ids == null || !ids.Any())
+                return BadRequest("No customer IDs provided");
+
+            foreach (var id in ids)
+                await Delete(id);
+
+            return NoContent();
+        }
+
+        /// <summary>
         /// Update a Customer
         /// </summary>
         /// <param name="id"></param>
@@ -137,7 +155,7 @@ namespace WeningerDemoProject.Controllers
             if (count <= 0)
                 return BadRequest("Count must be greater than 0");
 
-            var customers = await _customerRepo.GenerateCustomerList(count);
+            var customers = await _customerRepo.GenerateCustomerListAsync(count);
 
             return Ok(customers.Select(c => c.ToCustomerDto()).ToList());
         }

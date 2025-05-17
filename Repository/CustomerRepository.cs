@@ -119,7 +119,7 @@ namespace WeningerDemoProject.Repository
                 Select(c => (int?)c.Id).FirstOrDefaultAsync();
         }
 
-        public async Task<List<Customer>> GenerateCustomerList(int count)
+        public async Task<List<Customer>> GenerateCustomerListAsync(int count)
         {
             
             var customerList = new List<Customer>();
