@@ -115,6 +115,24 @@ namespace WeningerDemoProject.Controllers
         }
 
         /// <summary>
+        /// Delete multiple
+        /// </summary>
+        /// <param name="ids"></param>
+        /// <returns></returns>
+        [HttpPost("delete-multiple")]
+        [Authorize(Roles = "Admin")]
+        public async Task<IActionResult> DeleteMultiple([FromBody] List<int> ids)
+        {
+            if (ids == null || ids.Count == 0)
+                return BadRequest("No order IDs provided");
+
+            foreach (var id in ids)
+                await _orderRepo.DeleteAsync(id);
+
+            return NoContent();
+        }
+
+        /// <summary>
         /// Update an Order
         /// </summary>
         /// <param name="id"></param>

@@ -118,7 +118,7 @@ namespace WeningerDemoProject.Controllers
                 return BadRequest("No customer IDs provided");
 
             foreach (var id in ids)
-                await Delete(id);
+                await _customerRepo.DeleteAsync(id);
 
             return NoContent();
         }
