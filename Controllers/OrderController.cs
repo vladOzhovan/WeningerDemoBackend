@@ -7,6 +7,7 @@ using WeningerDemoProject.Models;
 using Microsoft.AspNetCore.Identity;
 using WeningerDemoProject.Helpers;
 using Microsoft.AspNetCore.Authorization;
+using Microsoft.EntityFrameworkCore;
 
 namespace WeningerDemoProject.Controllers
 {
@@ -72,6 +73,24 @@ namespace WeningerDemoProject.Controllers
             var ordersDto = orders.Select(o => o.ToOrderDto());
 
             return Ok(ordersDto);
+        }
+
+        [HttpGet("user-order-list")]
+        [Authorize]
+        public async Task<IActionResult> GetUserOrderList()
+        {
+            var userId = _userManager.GetUserId(User);
+
+            var user = await _userManager.Users.Include(u => u.Orders).FirstOrDefaultAsync(u => u.Id == userId);
+
+            if (user == null)
+                return Unauthorized();
+
+            var orderList = user.Orders.OrderByDescending(o => o.CreatedOn).ToList();
+
+            var orderListDto = orderList.Select(o => o.ToOrderDto()).ToList();
+
+            return Ok(orderListDto);
         }
 
         /// <summary>
