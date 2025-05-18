@@ -91,6 +91,7 @@ namespace WeningerDemoProject.Controllers
                 return NotFound("Customer does not exists");
 
             var orderModel = orderDto.ToOrderFromCreateDto(customerNumber, customerId.Value);
+            
             await _orderRepo.CreateAsync(orderModel);
 
             return CreatedAtAction(nameof(GetById), new { id = orderModel.Id }, orderModel.ToOrderDto());

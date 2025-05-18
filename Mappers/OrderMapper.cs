@@ -30,7 +30,7 @@ namespace WeningerDemoProject.Mappers
                 Description = dto.Description,
                 CustomerNumber = customerNumber,
                 Status = dto.Status,
-                CreatedOn = DateTime.Now
+                CreatedOn = DateTime.UtcNow
             };
         }
     }

@@ -88,6 +88,23 @@ namespace WeningerDemoProject.Controllers
         }
 
         /// <summary>
+        /// Generate customers
+        /// </summary>
+        /// <param name="count"></param>
+        /// <returns></returns>
+        [HttpPost("generate-customers")]
+        [Authorize(Roles = "Admin")]
+        public async Task<IActionResult> GenerateCustomers(int count)
+        {
+            if (count <= 0)
+                return BadRequest("Count must be greater than 0");
+
+            var customers = await _customerRepo.GenerateCustomerListAsync(count);
+
+            return Ok(customers.Select(c => c.ToCustomerDto()).ToList());
+        }
+
+        /// <summary>
         /// Delete a Customer
         /// </summary>
         /// <param name="id"></param>
@@ -143,21 +160,6 @@ namespace WeningerDemoProject.Controllers
             return Ok(customerModel.ToCustomerDto());
         }
 
-        /// <summary>
-        /// Generate customers
-        /// </summary>
-        /// <param name="count"></param>
-        /// <returns></returns>
-        [HttpPost("generate-customers")]
-        [Authorize(Roles = "Admin")]
-        public async Task<IActionResult> GenerateCustomers(int count)
-        {
-            if (count <= 0)
-                return BadRequest("Count must be greater than 0");
-
-            var customers = await _customerRepo.GenerateCustomerListAsync(count);
-
-            return Ok(customers.Select(c => c.ToCustomerDto()).ToList());
-        }
+        
     }
 }

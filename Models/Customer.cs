@@ -13,19 +13,22 @@ namespace WeningerDemoProject.Models
         {
             get
             {
+                if (Orders == null || Orders.Count == 0)
+                    return OrderStatus.NoOrders;
+
                 if (Orders.All(o => o.Status == OrderStatus.Completed))
                     return OrderStatus.Completed;
 
                 if (Orders.All(o => o.Status == OrderStatus.Canceled))
                     return OrderStatus.Canceled;
 
-                else if (Orders.Any(o => o.Status == OrderStatus.InProgress))
+                if (Orders.Any(o => o.Status == OrderStatus.InProgress))
                     return OrderStatus.InProgress;
 
-                else if (Orders.All(o => o.Status == OrderStatus.Pending)) 
+                if (Orders.All(o => o.Status == OrderStatus.Pending)) 
                     return OrderStatus.Pending;
 
-                else return OrderStatus.Pending;
+                return OrderStatus.Pending;
             }
         }
         public List<Order> Orders { get; set; } = new List<Order>();
