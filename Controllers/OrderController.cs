@@ -245,6 +245,36 @@ namespace WeningerDemoProject.Controllers
             return Ok(order.ToOrderDto());
         }
 
+        [HttpPut("cancel/{orderId:int}")]
+        [Authorize]
+        public async Task<IActionResult> CancelOrder([FromRoute] int orderId)
+        {
+            var userId = _userManager.GetUserId(User);
+
+            if (userId == null)
+                return Unauthorized();
+
+            var order = await _orderRepo.GetByIdAsync(orderId);
+
+            if (order == null)
+                return NotFound("Order not found");
+
+            if (order.TakenByUserId != userId)
+            {
+                return new ObjectResult(new ProblemDetails
+                {
+                    Status = StatusCodes.Status403Forbidden,
+                    Title = "Forbidden",
+                    Detail = "You can only cancle orders you have taken"
+                });
+            }
+
+            order.Cancle();
+            await _orderRepo.SaveChangesAsync();
+
+            return Ok(order.ToOrderDto());
+        }
+
         [HttpPut("complete/{orderId:int}")]
         [Authorize]
         public async Task<IActionResult> CompleteOrder([FromRoute] int orderId)

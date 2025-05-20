@@ -30,5 +30,11 @@
             TakenByUserId = null;
             Status = OrderStatus.Completed;
         }
+
+        public void Cancle()
+        {
+            TakenByUserId = null;
+            Status = OrderStatus.Canceled;
+        }
     }
 }
