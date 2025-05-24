@@ -14,6 +14,7 @@ namespace WeningerDemoProject.Mappers
                 Description = order.Description,
                 CustomerId = order.CustomerId,
                 CustomerNumber = order.Customer.CustomerNumber,
+                CustomerFullName = $"{order.Customer.FullName}",
                 Status = order.Status.ToString(),
                 CreatedOn = order.CreatedOn,
                 TakenByUserId = order.TakenByUserId,

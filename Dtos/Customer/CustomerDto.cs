@@ -10,6 +10,6 @@ namespace WeningerDemoProject.Dtos.Customer
         public string SecondName { get; set; } = string.Empty;
         public DateTime CreatedOn { get; set; }
         public string OverallStatus { get; set; } = string.Empty;
-        public List<OrderDto> Orders { get; set; } = new();
+        public List<OrderDto> Orders { get; set; } = [];
     }
 }

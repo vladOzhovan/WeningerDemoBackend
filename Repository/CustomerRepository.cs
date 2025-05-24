@@ -1,5 +1,4 @@
 ﻿using Microsoft.EntityFrameworkCore;
-using System.Linq;
 using WeningerDemoProject.Data;
 using WeningerDemoProject.Dtos.Customer;
 using WeningerDemoProject.Helpers;

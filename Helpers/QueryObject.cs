@@ -2,6 +2,7 @@
 {
     public class QueryObject
     {
+        public string? Search { get; set; } = null;
         public string? CustomerNumber { get; set; } = null;
         public string? FirstName { get; set; } = null;
         public string? SecondName { get; set; } = null;

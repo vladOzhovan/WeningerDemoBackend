@@ -26,7 +26,7 @@ namespace WeningerDemoProject.Mappers
                 CustomerNumber = customerDto.CustomerNumber,
                 FirstName = customerDto.FirstName,
                 SecondName = customerDto.SecondName,
-                CreatedOn = customerDto.CreatedOn
+                CreatedOn = DateTime.UtcNow
             };
         }
     }
