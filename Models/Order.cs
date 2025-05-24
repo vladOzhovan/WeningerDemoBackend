@@ -6,9 +6,8 @@
         public string? Title { get; set; } = string.Empty;
         public string? Description { get; set; } = string.Empty;
         public OrderStatus Status { get; set; }
-        public DateTime CreatedOn { get; set; } = DateTime.UtcNow;
+        public DateTime CreatedOn { get; set; }
         public int CustomerId { get; set; }
-        public int CustomerNumber { get; set; }
         public Customer Customer { get; set; } = null!;
         public string? TakenByUserId { get; set; } = null;
         public AppUser? TakenByUser { get; set; } = null;

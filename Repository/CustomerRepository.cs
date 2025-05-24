@@ -1,4 +1,5 @@
 ﻿using Microsoft.EntityFrameworkCore;
+using System.Linq;
 using WeningerDemoProject.Data;
 using WeningerDemoProject.Dtos.Customer;
 using WeningerDemoProject.Helpers;
@@ -60,31 +61,78 @@ namespace WeningerDemoProject.Repository
         {
             var customers = _context.Customers.Include(c => c.Orders).AsQueryable();
 
-            if (!string.IsNullOrWhiteSpace(query.CustomerNumber?.ToString()))
-                customers = customers.Where(c => c.CustomerNumber.ToString().ToLower().Contains(query.CustomerNumber.ToString().ToLower()));
+            if (!string.IsNullOrWhiteSpace(query.CustomerNumber))
+                customers = customers.Where(c => EF.Functions.Like(c.CustomerNumber.ToString(), $"%{query.CustomerNumber}%"));
 
             if (!string.IsNullOrWhiteSpace(query.FirstName))
-                customers = customers.Where(c => c.FirstName.ToLower().Contains(query.FirstName.ToLower()));
+                customers = customers.Where(c => EF.Functions.Like(c.FirstName, $"%{query.FirstName}%"));
 
             if (!string.IsNullOrWhiteSpace(query.SecondName))
                 customers = customers.Where(c => EF.Functions.Like(c.SecondName, $"%{query.SecondName}%"));
 
-            if (!string.IsNullOrWhiteSpace(query.SecondName))
-                customers = customers.Where(c => c.SecondName.ToLower().Contains(query.SecondName.ToLower()));
-
-
             if (!string.IsNullOrWhiteSpace(query.SortBy))
             {
-                if (query.SortBy.Equals("Name", StringComparison.OrdinalIgnoreCase))
+                #region 
+                // pagination
+                //if (query.SortBy.Equals("Name", StringComparison.OrdinalIgnoreCase))
+                //{
+                //    customers = query.IsDescending ? customers.OrderByDescending(c => c.SecondName) : 
+                //        customers.OrderBy(c => c.SecondName);
+                //}
+
+                //customers = query.SortBy.ToLower() switch
+                //{
+                //    "firstname" => query.IsDescending
+                //        ? customers.OrderByDescending(c => c.FirstName)
+                //        : customers.OrderBy(c => c.FirstName),
+
+                //    "secondname" or "name" => query.IsDescending
+                //        ? customers.OrderByDescending(c => c.SecondName)
+                //        : customers.OrderBy(c => c.SecondName),
+
+                //    "customernumber" or "number" => query.IsDescending
+                //        ? customers.OrderByDescending(c => c.CustomerNumber)
+                //        : customers.OrderBy(c => c.CustomerNumber),
+
+                //    _ => customers
+                //};
+
+                #endregion
+
+                switch (query.SortBy.ToLower())
                 {
-                    customers = query.IsDescending ? customers.OrderByDescending(c => c.SecondName) : 
-                        customers.OrderBy(c => c.SecondName);
+                    case "firstname":
+                        customers = query.IsDescending
+                            ? customers.OrderByDescending(c => c.FirstName)
+                            : customers.OrderBy(c => c.FirstName);
+                        break;
+
+                    case "secondname" or "name":
+                        customers = query.IsDescending
+                            ? customers.OrderByDescending(c => c.SecondName)
+                            : customers.OrderBy(c => c.SecondName);
+                        break;
+
+                    case "customernumber" or "number":
+                        customers = query.IsDescending
+                            ? customers.OrderByDescending(c => c.CustomerNumber)
+                            : customers.OrderBy(c => c.CustomerNumber);
+                        break;
+
+                    case "date" or "time":
+                        customers = query.IsDescending
+                            ? customers.OrderByDescending(c => c.CreatedOn)
+                            : customers.OrderBy(c => c.CreatedOn);
+                        break;
+
+                    default:
+                        customers = query.IsDescending
+                            ? customers.OrderByDescending(c => c.CreatedOn)
+                            : customers.OrderBy(c => c.CreatedOn);
+                        break;
                 }
             }
-
-            //var skipNumber = (query.PageNumber - 1) * query.PageSize;
-            //return await customers.Skip(skipNumber).Take(query.PageSize).ToListAsync();
-
+            
             return await customers.ToListAsync();
         }
 

@@ -15,5 +15,6 @@ namespace WeningerDemoProject.Dtos.Customer
         [Required(ErrorMessage = "Second name is reauired.")]
         [StringLength(50, MinimumLength = 2, ErrorMessage = "Second name must be between 2 and 50 characters.")]
         public string SecondName { get; set; } = string.Empty;
+        public DateTime CreatedOn { get; set; } = DateTime.UtcNow;
     }
 }

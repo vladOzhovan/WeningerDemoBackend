@@ -42,7 +42,7 @@ namespace WeningerDemoProject.Repository
 
         public async Task<Order?> UpdateAsync(int id, UpdateOrderDto orderDto)
         {
-            var orderInDb = await _context.Orders.FindAsync(id);
+            var orderInDb = await _context.Orders.Include(o => o.Customer).FirstOrDefaultAsync(o => o.Id == id);
 
             if (orderInDb == null)
                 return null;
@@ -72,28 +72,69 @@ namespace WeningerDemoProject.Repository
         {
             var orders = _context.Orders.Include(o => o.Customer).AsQueryable();
 
-            if (!string.IsNullOrWhiteSpace(query.CustomerNumber.ToString()))
-                orders = orders.Where(o => o.CustomerNumber.ToString().ToLower().Contains(query.CustomerNumber.ToString().ToLower()));
+            if (!string.IsNullOrWhiteSpace(query.CustomerNumber))
+                orders = orders.Where(o => 
+                    EF.Functions.Like(o.Customer.CustomerNumber.ToString(), $"%{query.CustomerNumber}%"));
 
             if (!string.IsNullOrWhiteSpace(query.FirstName))
-                orders = orders.Where(o => o.Customer.FirstName.ToLower().Contains(query.FirstName.ToLower()));
+                orders = orders.Where(o => EF.Functions.Like(o.Customer.FirstName, $"%{query.FirstName}%"));
 
             if (!string.IsNullOrWhiteSpace(query.SecondName))
-                orders = orders.Where(o => o.Customer.SecondName.ToLower().Contains(query.SecondName.ToLower()));
+                orders = orders.Where(o => EF.Functions.Like(o.Customer.SecondName, $"%{query.SecondName}%"));
 
-            var skipNumber = (query.PageNumber - 1) * query.PageSize;
+            if (!string.IsNullOrWhiteSpace(query.Title))
+                orders = orders.Where(o => EF.Functions.Like(o.Title, $"%{query.Title}%"));
 
-            return await orders.Skip(skipNumber).Take(query.PageSize).ToListAsync();
+            if (!string.IsNullOrWhiteSpace(query.Description))
+                orders = orders.Where(o => EF.Functions.Like(o.Description, $"%{query.Description}%"));
+
+            if (!string.IsNullOrWhiteSpace(query.SortBy))
+            {
+                switch (query.SortBy.ToLower())
+                {
+                    case "firstname":
+                        orders = query.IsDescending
+                            ? orders.OrderByDescending(o => o.Customer.FirstName)
+                            : orders.OrderBy(o => o.Customer.FirstName);
+                        break;
+
+                    case "secondname" or "name":
+                        orders = query.IsDescending
+                            ? orders.OrderByDescending(o => o.Customer.SecondName)
+                            : orders.OrderBy(o => o.Customer.SecondName);
+                        break;
+
+                    case "customernumber" or "number":
+                        orders = query.IsDescending
+                            ? orders.OrderByDescending(o => o.Customer.CustomerNumber)
+                            : orders.OrderBy(o => o.Customer.CustomerNumber);
+                        break;
+
+                    case "date" or "time":
+                        orders = query.IsDescending
+                            ? orders.OrderByDescending(o => o.CreatedOn)
+                            : orders.OrderBy(o => o.CreatedOn);
+                        break;
+
+                    default:
+                        orders = query.IsDescending
+                            ? orders.OrderByDescending(o => o.CreatedOn)
+                            : orders.OrderBy(o => o.CreatedOn);
+                        break;
+                }
+            }
+            
+            return await orders.ToListAsync();
         }
 
         public async Task<Order?> GetByIdAsync(int id)
         {
-            return await _context.Orders.FirstOrDefaultAsync(o => o.Id == id);
+            return await _context.Orders.Include(o => o.Customer).FirstOrDefaultAsync(o => o.Id == id);
         }
 
         public async Task<List<Order>> GetByCustomerNumberAsync(int customerNumber)
         {
-            return await _context.Orders.Include(o => o.Customer).Where(o => o.CustomerNumber == customerNumber).ToListAsync();
+            return await _context.Orders.Include(o => o.Customer).Where(o => o.Customer.CustomerNumber == customerNumber).ToListAsync();
         }
     }
 }

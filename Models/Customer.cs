@@ -9,6 +9,7 @@ namespace WeningerDemoProject.Models
         public int CustomerNumber { get; set; }
         public string FirstName { get; set; } = string.Empty;
         public string SecondName { get; set; } = string.Empty;
+        public DateTime CreatedOn { get; set; }
         public OrderStatus OverallStatus
         {
             get

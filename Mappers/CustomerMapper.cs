@@ -13,6 +13,7 @@ namespace WeningerDemoProject.Mappers
                 CustomerNumber = customer.CustomerNumber,
                 FirstName = customer.FirstName,
                 SecondName = customer.SecondName,
+                CreatedOn = customer.CreatedOn,
                 OverallStatus = customer.OverallStatus.ToString(),
                 Orders = customer.Orders.Select(o => o.ToOrderDto()).ToList()
             };
@@ -24,7 +25,8 @@ namespace WeningerDemoProject.Mappers
             {
                 CustomerNumber = customerDto.CustomerNumber,
                 FirstName = customerDto.FirstName,
-                SecondName = customerDto.SecondName
+                SecondName = customerDto.SecondName,
+                CreatedOn = customerDto.CreatedOn
             };
         }
     }

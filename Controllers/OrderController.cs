@@ -81,7 +81,8 @@ namespace WeningerDemoProject.Controllers
         {
             var userId = _userManager.GetUserId(User);
 
-            var user = await _userManager.Users.Include(u => u.Orders).FirstOrDefaultAsync(u => u.Id == userId);
+            var user = await _userManager.Users.Include(u => u.Orders).ThenInclude(o => o.Customer).
+                FirstOrDefaultAsync(u => u.Id == userId);
 
             if (user == null)
                 return Unauthorized();
@@ -109,11 +110,13 @@ namespace WeningerDemoProject.Controllers
             if (customerId == null)
                 return NotFound("Customer does not exists");
 
-            var orderModel = orderDto.ToOrderFromCreateDto(customerNumber, customerId.Value);
-            
+            var orderModel = orderDto.ToOrderFromCreateDto(customerId.Value);
+
             await _orderRepo.CreateAsync(orderModel);
 
-            return CreatedAtAction(nameof(GetById), new { id = orderModel.Id }, orderModel.ToOrderDto());
+            var createdOrder = await _orderRepo.GetByIdAsync(orderModel.Id);
+
+            return CreatedAtAction(nameof(GetById), new { id = createdOrder?.Id }, createdOrder?.ToOrderDto());
         }
 
         /// <summary>
@@ -192,7 +195,7 @@ namespace WeningerDemoProject.Controllers
         }
 
         [HttpPut("take/{orderId:int}")]
-        [Authorize]
+        [Authorize(Roles = "User")]
         public async Task<IActionResult> TakeOrder([FromRoute] int orderId)
         {
             var order = await _orderRepo.GetByIdAsync(orderId);
@@ -216,7 +219,7 @@ namespace WeningerDemoProject.Controllers
         }
 
         [HttpPut("release/{orderId:int}")]
-        [Authorize]
+        [Authorize(Roles = "User")]
         public async Task<IActionResult> ReleaseOrder([FromRoute] int orderId)
         {
             var order = await _orderRepo.GetByIdAsync(orderId);
@@ -246,7 +249,7 @@ namespace WeningerDemoProject.Controllers
         }
 
         [HttpPut("cancel/{orderId:int}")]
-        [Authorize]
+        [Authorize(Roles = "User")]
         public async Task<IActionResult> CancelOrder([FromRoute] int orderId)
         {
             var userId = _userManager.GetUserId(User);
@@ -276,7 +279,7 @@ namespace WeningerDemoProject.Controllers
         }
 
         [HttpPut("complete/{orderId:int}")]
-        [Authorize]
+        [Authorize(Roles = "User")]
         public async Task<IActionResult> CompleteOrder([FromRoute] int orderId)
         {
             var order = await _orderRepo.GetByIdAsync(orderId);

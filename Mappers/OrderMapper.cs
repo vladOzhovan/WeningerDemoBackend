@@ -13,7 +13,7 @@ namespace WeningerDemoProject.Mappers
                 Title = order.Title,
                 Description = order.Description,
                 CustomerId = order.CustomerId,
-                CustomerNumber = order.CustomerNumber,
+                CustomerNumber = order.Customer.CustomerNumber,
                 Status = order.Status.ToString(),
                 CreatedOn = order.CreatedOn,
                 TakenByUserId = order.TakenByUserId,
@@ -21,15 +21,14 @@ namespace WeningerDemoProject.Mappers
             };
         }
 
-        public static Order ToOrderFromCreateDto(this CreateOrderDto dto, int customerNumber, int customerId)
+        public static Order ToOrderFromCreateDto(this CreateOrderDto dto, int customerId)
         {
             return new Order
             {
                 CustomerId = customerId,
                 Title = dto.Title,
                 Description = dto.Description,
-                CustomerNumber = customerNumber,
-                Status = dto.Status,
+                Status = OrderStatus.Pending,
                 CreatedOn = DateTime.UtcNow
             };
         }

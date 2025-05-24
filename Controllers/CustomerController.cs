@@ -4,7 +4,6 @@ using WeningerDemoProject.Dtos.Customer;
 using WeningerDemoProject.Helpers;
 using WeningerDemoProject.Interfaces;
 using WeningerDemoProject.Mappers;
-using WeningerDemoProject.Models;
 using WeningerDemoProject.Validators;
 
 namespace WeningerDemoProject.Controllers
