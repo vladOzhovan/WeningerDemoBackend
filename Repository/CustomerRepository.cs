@@ -20,6 +20,42 @@ namespace WeningerDemoProject.Repository
             _random = random;
         }
 
+        public async Task<List<Customer>> GetAllAsync(QueryObject query)
+        {
+            var customers = _context.Customers.Include(c => c.Orders).AsQueryable();
+
+            customers = customers.ApplySearch(query.Search);
+            customers = customers.ApplySorting(query.IsDescending, query.SortBy);
+
+            return await customers.ToListAsync();
+        }
+
+        public async Task<Customer?> GetByIdAsync(int id)
+        {
+            var customerModel = await _context.Customers.Include(c => c.Orders).FirstOrDefaultAsync(c => c.Id == id);
+
+            if (customerModel == null)
+                return null;
+
+            return customerModel;
+        }
+
+        public async Task<Customer?> GetByNumberAsync(int customerNumber)
+        {
+            var customerModel = await _context.Customers.Include(c => c.Orders).FirstOrDefaultAsync(c => c.CustomerNumber == customerNumber);
+
+            if (customerModel == null)
+                return null;
+
+            return customerModel;
+        }
+
+        public async Task<int?> GetCustomerIdByNumberAsync(int customerNumber)
+        {
+            return await _context.Customers.Where(c => c.CustomerNumber == customerNumber).
+                Select(c => (int?)c.Id).FirstOrDefaultAsync();
+        }
+
         public async Task<Customer> CreateAsync(Customer customerModel)
         {
             await _context.Customers.AddAsync(customerModel);
@@ -56,114 +92,9 @@ namespace WeningerDemoProject.Repository
             return customerInDb;
         }
 
-        public async Task<List<Customer>> GetAllAsync(QueryObject query)
-        {
-            var customers = _context.Customers.Include(c => c.Orders).AsQueryable();
-
-            if (!string.IsNullOrWhiteSpace(query.CustomerNumber))
-                customers = customers.Where(c => EF.Functions.Like(c.CustomerNumber.ToString(), $"%{query.CustomerNumber}%"));
-
-            if (!string.IsNullOrWhiteSpace(query.FirstName))
-                customers = customers.Where(c => EF.Functions.Like(c.FirstName, $"%{query.FirstName}%"));
-
-            if (!string.IsNullOrWhiteSpace(query.SecondName))
-                customers = customers.Where(c => EF.Functions.Like(c.SecondName, $"%{query.SecondName}%"));
-
-            if (!string.IsNullOrWhiteSpace(query.SortBy))
-            {
-                #region 
-                // pagination
-                //if (query.SortBy.Equals("Name", StringComparison.OrdinalIgnoreCase))
-                //{
-                //    customers = query.IsDescending ? customers.OrderByDescending(c => c.SecondName) : 
-                //        customers.OrderBy(c => c.SecondName);
-                //}
-
-                //customers = query.SortBy.ToLower() switch
-                //{
-                //    "firstname" => query.IsDescending
-                //        ? customers.OrderByDescending(c => c.FirstName)
-                //        : customers.OrderBy(c => c.FirstName),
-
-                //    "secondname" or "name" => query.IsDescending
-                //        ? customers.OrderByDescending(c => c.SecondName)
-                //        : customers.OrderBy(c => c.SecondName),
-
-                //    "customernumber" or "number" => query.IsDescending
-                //        ? customers.OrderByDescending(c => c.CustomerNumber)
-                //        : customers.OrderBy(c => c.CustomerNumber),
-
-                //    _ => customers
-                //};
-
-                #endregion
-
-                switch (query.SortBy.ToLower())
-                {
-                    case "firstname":
-                        customers = query.IsDescending
-                            ? customers.OrderByDescending(c => c.FirstName)
-                            : customers.OrderBy(c => c.FirstName);
-                        break;
-
-                    case "secondname" or "name":
-                        customers = query.IsDescending
-                            ? customers.OrderByDescending(c => c.SecondName)
-                            : customers.OrderBy(c => c.SecondName);
-                        break;
-
-                    case "customernumber" or "number":
-                        customers = query.IsDescending
-                            ? customers.OrderByDescending(c => c.CustomerNumber)
-                            : customers.OrderBy(c => c.CustomerNumber);
-                        break;
-
-                    case "date" or "time":
-                        customers = query.IsDescending
-                            ? customers.OrderByDescending(c => c.CreatedOn)
-                            : customers.OrderBy(c => c.CreatedOn);
-                        break;
-
-                    default:
-                        customers = query.IsDescending
-                            ? customers.OrderByDescending(c => c.CreatedOn)
-                            : customers.OrderBy(c => c.CreatedOn);
-                        break;
-                }
-            }
-            
-            return await customers.ToListAsync();
-        }
-
-        public async Task<Customer?> GetByIdAsync(int id)
-        {
-            var customerModel = await _context.Customers.Include(c => c.Orders).FirstOrDefaultAsync(c => c.Id == id);
-
-            if (customerModel == null)
-                return null;
-
-            return customerModel;
-        }
-
-        public async Task<Customer?> GetByNumberAsync(int customerNumber)
-        {
-            var customerModel = await _context.Customers.Include(c => c.Orders).FirstOrDefaultAsync(c => c.CustomerNumber == customerNumber);
-
-            if (customerModel == null)
-                return null;
-
-            return customerModel;
-        }
-
         public async Task<bool> CustomerExists(int customerNumber)
         {
             return await _context.Customers.AnyAsync(c => c.CustomerNumber == customerNumber);
-        }
-
-        public async Task<int?> GetCustomerIdByNumberAsync(int customerNumber)
-        {
-            return await _context.Customers.Where(c => c.CustomerNumber == customerNumber).
-                Select(c => (int?)c.Id).FirstOrDefaultAsync();
         }
 
         public async Task<List<Customer>> GenerateCustomerListAsync(int count)
@@ -209,7 +140,5 @@ namespace WeningerDemoProject.Repository
             
             return customerList;
         }
-
-
     }
 }

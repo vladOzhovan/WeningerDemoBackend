@@ -1,65 +1,65 @@
-﻿using WeningerDemoProject.Models;
-using static Microsoft.EntityFrameworkCore.DbLoggerCategory;
+﻿using Microsoft.EntityFrameworkCore;
+using WeningerDemoProject.Models;
 
 namespace WeningerDemoProject.Helpers
 {
     public static class OrderExtensions
     {
-        public static IQueryable<Order> ApplySearch(this IQueryable<Order> orders, string? search)
+        public static IQueryable<Order> ApplySearch(this IQueryable<Order> query, string? search)
         {
             if (string.IsNullOrWhiteSpace(search))
-                return orders;
+                return query;
 
             search = search.ToLower();
 
-            return orders.Where(o =>
-                    o.Customer.CustomerNumber.ToString().Contains(search) ||
-                    o.Customer.FirstName.ToLower().Contains(search) ||
-                    o.Customer.SecondName.ToLower().Contains(search) ||
-                    o.Title.ToLower().Contains(search) ||
-                    o.Description.ToLower().Contains(search)
+            return query.Where(o =>
+                    EF.Functions.Like(o.Customer.CustomerNumber.ToString(), $"%{search}%") ||
+                    EF.Functions.Like(o.Customer.FirstName.ToLower(), $"%{search}%") ||
+                    EF.Functions.Like(o.Customer.SecondName.ToLower(), $"%{search}%") ||
+                    EF.Functions.Like(o.Title.ToLower(), $"%{search}%") ||
+                    EF.Functions.Like(o.Description.ToLower(), $"%{search}%")
             );
         }
 
-        public static IQueryable<Order> ApplySorting(this IQueryable<Order> orders, bool isDescending, string? sortBy)
+        public static IQueryable<Order> ApplySorting(this IQueryable<Order> query, bool isDescending, string? sortBy)
         {
             if (string.IsNullOrWhiteSpace(sortBy))
-                return orders;
+                return query;
 
             switch (sortBy.ToLower())
             {
                 case "firstname":
-                    orders = isDescending
-                        ? orders.OrderByDescending(o => o.Customer.FirstName)
-                        : orders.OrderBy(o => o.Customer.FirstName);
+                    query = isDescending
+                        ? query.OrderByDescending(o => o.Customer.FirstName)
+                        : query.OrderBy(o => o.Customer.FirstName);
                     break;
 
                 case "secondname" or "name":
-                    orders = isDescending
-                        ? orders.OrderByDescending(o => o.Customer.SecondName)
-                        : orders.OrderBy(o => o.Customer.SecondName);
+                    query = isDescending
+                        ? query.OrderByDescending(o => o.Customer.SecondName)
+                        : query.OrderBy(o => o.Customer.SecondName);
                     break;
 
                 case "customernumber" or "number":
-                    orders = isDescending
-                        ? orders.OrderByDescending(o => o.Customer.CustomerNumber)
-                        : orders.OrderBy(o => o.Customer.CustomerNumber);
+                    query = isDescending
+                        ? query.OrderByDescending(o => o.Customer.CustomerNumber)
+                        : query.OrderBy(o => o.Customer.CustomerNumber);
                     break;
 
                 case "date" or "time":
-                    orders = isDescending
-                        ? orders.OrderByDescending(o => o.CreatedOn)
-                        : orders.OrderBy(o => o.CreatedOn);
+                    query = isDescending
+                        ? query.OrderByDescending(o => o.CreatedOn)
+                        : query.OrderBy(o => o.CreatedOn);
                     break;
 
                 default:
-                    orders = isDescending
-                        ? orders.OrderByDescending(o => o.CreatedOn)
-                        : orders.OrderBy(o => o.CreatedOn);
+                    query = isDescending
+                        ? query.OrderByDescending(o => o.CreatedOn)
+                        : query.OrderBy(o => o.CreatedOn);
                     break;
             }
 
-            return orders;
+            return query;
         }
     }
 }

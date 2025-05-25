@@ -158,7 +158,5 @@ namespace WeningerDemoProject.Controllers
 
             return Ok(customerModel.ToCustomerDto());
         }
-
-        
     }
 }
