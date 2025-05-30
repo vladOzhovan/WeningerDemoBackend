@@ -26,7 +26,7 @@ namespace WeningerDemoProject.Controllers
             _logger = logger;
         }
 
-        [HttpPost("register")]
+        [HttpPost("register-user")]
         [Authorize(Roles = "Admin")]
         [ValidateModel]
         public async Task<IActionResult> RegisterUser([FromBody] RegisterDto registerDto)
@@ -158,7 +158,7 @@ namespace WeningerDemoProject.Controllers
             );
         }
 
-        [HttpPut("user/{id}")]
+        [HttpPut("update-user/{id}")]
         [Authorize(Roles = "Admin")]
         [ValidateModel]
         public async Task<IActionResult> UpdateUser(string id, [FromBody] UpdateUserDto dto)
@@ -252,7 +252,7 @@ namespace WeningerDemoProject.Controllers
             return NoContent();
         }
 
-        [HttpGet("users")]
+        [HttpGet("get-users")]
         [Authorize(Roles = "Admin")]
         public async Task<IActionResult> GetAllUsers()
         {

@@ -22,17 +22,16 @@ namespace WeningerDemoProject.Repository
 
         public async Task<List<Customer>> GetAllAsync(QueryObject query)
         {
-            var customers = _context.Customers.Include(c => c.Orders).AsQueryable();
-
+            var customers = _context.Customers.Include(c => c.Orders).Include(c => c.Address).AsQueryable();
             customers = customers.ApplySearch(query.Search);
             customers = customers.ApplySorting(query.IsDescending, query.SortBy);
-
             return await customers.ToListAsync();
         }
 
         public async Task<Customer?> GetByIdAsync(int id)
         {
-            var customerModel = await _context.Customers.Include(c => c.Orders).FirstOrDefaultAsync(c => c.Id == id);
+            var customerModel = await _context.Customers.Include(c => c.Orders).Include(c => c.Address).
+                FirstOrDefaultAsync(c => c.Id == id);
 
             if (customerModel == null)
                 return null;
@@ -42,7 +41,8 @@ namespace WeningerDemoProject.Repository
 
         public async Task<Customer?> GetByNumberAsync(int customerNumber)
         {
-            var customerModel = await _context.Customers.Include(c => c.Orders).FirstOrDefaultAsync(c => c.CustomerNumber == customerNumber);
+            var customerModel = await _context.Customers.Include(c => c.Orders).Include(c => c.Address).
+                FirstOrDefaultAsync(c => c.CustomerNumber == customerNumber);
 
             if (customerModel == null)
                 return null;
@@ -76,16 +76,27 @@ namespace WeningerDemoProject.Repository
             return customerModel;
         }
 
-        public async Task<Customer?> UpdateAsync(int id, UpdateCustomerDto customerDto)
+        public async Task<Customer?> UpdateAsync(int id, UpdateCustomerDto dto)
         {
             var customerInDb = await _context.Customers.FirstOrDefaultAsync(c => c.Id == id);
 
             if (customerInDb == null)
                 return null;
 
-            customerInDb.CustomerNumber = customerDto.CustomerNumber;
-            customerInDb.FirstName = customerDto.FirstName;
-            customerInDb.SecondName = customerDto.SecondName;
+            customerInDb.CustomerNumber = dto.CustomerNumber;
+            customerInDb.FirstName = dto.FirstName;
+            customerInDb.SecondName = dto.SecondName;
+            customerInDb.Email = dto.Email;
+            customerInDb.PhoneNumber = dto.PhoneNumber;
+            customerInDb.Address = new Address
+            {
+                ZipCode = dto.Adress.ZipCode,
+                Country = dto.Adress.Country ?? string.Empty,
+                City = dto.Adress.City ?? string.Empty,
+                Street = dto.Adress.Street ?? string.Empty,
+                HouseNumber = dto.Adress.HouseNumber ?? string.Empty,
+                Apartment = dto.Adress.Apartment ?? string.Empty
+            };
 
             await _context.SaveChangesAsync();
 

@@ -1,7 +1,8 @@
-﻿using WeningerDemoProject.Models;
-using Microsoft.EntityFrameworkCore;
-using Microsoft.AspNetCore.Identity;
+﻿using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Identity.EntityFrameworkCore;
+using Microsoft.EntityFrameworkCore;
+using System.Reflection.Emit;
+using WeningerDemoProject.Models;
 
 namespace WeningerDemoProject.Data
 {
@@ -33,6 +34,8 @@ namespace WeningerDemoProject.Data
             };
 
             builder.Entity<IdentityRole>().HasData(roles);
+
+            builder.Entity<Customer>().OwnsOne(c => c.Address);
         }
     }
 }

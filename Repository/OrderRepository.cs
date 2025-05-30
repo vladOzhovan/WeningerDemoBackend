@@ -17,7 +17,7 @@ namespace WeningerDemoProject.Repository
 
         public async Task<List<Order>> GetAllAsync(QueryObject query)
         {
-            var orders = _context.Orders.Include(o => o.Customer).AsQueryable();
+            var orders = _context.Orders.Include(o => o.Customer).ThenInclude(c => c.Address).AsQueryable();
             
             orders = orders.ApplySearch(query.Search);
             orders = orders.ApplySorting(query.IsDescending, query.SortBy);
@@ -27,12 +27,14 @@ namespace WeningerDemoProject.Repository
 
         public async Task<Order?> GetByIdAsync(int id)
         {
-            return await _context.Orders.Include(o => o.Customer).FirstOrDefaultAsync(o => o.Id == id);
+            return await _context.Orders.Include(o => o.Customer).ThenInclude(c => c.Address).
+                FirstOrDefaultAsync(o => o.Id == id);
         }
 
         public async Task<List<Order>> GetByCustomerNumberAsync(int customerNumber)
         {
-            return await _context.Orders.Include(o => o.Customer).Where(o => o.Customer.CustomerNumber == customerNumber).ToListAsync();
+            return await _context.Orders.Include(o => o.Customer).
+                Where(o => o.Customer.CustomerNumber == customerNumber).ToListAsync();
         }
 
         public async Task SaveChangesAsync()
@@ -62,7 +64,8 @@ namespace WeningerDemoProject.Repository
 
         public async Task<Order?> UpdateAsync(int id, UpdateOrderDto orderDto)
         {
-            var orderInDb = await _context.Orders.Include(o => o.Customer).FirstOrDefaultAsync(o => o.Id == id);
+            var orderInDb = await _context.Orders.Include(o => o.Customer).ThenInclude(c => c.Address).
+                FirstOrDefaultAsync(o => o.Id == id);
 
             if (orderInDb == null)
                 return null;

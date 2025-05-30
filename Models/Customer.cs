@@ -10,6 +10,9 @@ namespace WeningerDemoProject.Models
         public string FirstName { get; set; } = string.Empty;
         public string SecondName { get; set; } = string.Empty;
         public string FullName => $"{FirstName} {SecondName}";
+        public string Email { get; set; } = string.Empty;
+        public string PhoneNumber { get; set; } = string.Empty;
+        public Address Address { get; set; } = new Address();
         public DateTime CreatedOn { get; set; }
         public OrderStatus OverallStatus
         {

@@ -1,6 +1,5 @@
 ﻿using Microsoft.EntityFrameworkCore;
 using WeningerDemoProject.Models;
-using static Microsoft.EntityFrameworkCore.DbLoggerCategory;
 
 namespace WeningerDemoProject.Helpers
 {
