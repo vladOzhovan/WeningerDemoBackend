@@ -20,7 +20,7 @@ namespace WeningerDemoProject.Repository
             var orders = _context.Orders.Include(o => o.Customer).ThenInclude(c => c.Address).AsQueryable();
             
             orders = orders.ApplySearch(query.Search);
-            orders = orders.ApplySorting(query.IsDescending, query.SortBy);
+            orders = orders.ApplySorting(query.SortBy, query.IsDescending);
 
             return await orders.ToListAsync();
         }

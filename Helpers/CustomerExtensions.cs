@@ -20,7 +20,7 @@ namespace WeningerDemoProject.Helpers
             );
         }
 
-        public static IQueryable<Customer> ApplySorting(this IQueryable<Customer> query, bool isDescending, string? sortBy)
+        public static IQueryable<Customer> ApplySorting(this IQueryable<Customer> query, string? sortBy = "date", bool isDescending = false)
         {
             if (string.IsNullOrWhiteSpace(sortBy))
                 return query;
@@ -45,7 +45,7 @@ namespace WeningerDemoProject.Helpers
                         : query.OrderBy(c => c.CustomerNumber);
                     break;
 
-                case "date" or "time":
+                case "date" or "time" or "day":
                     query = isDescending
                         ? query.OrderByDescending(c => c.CreatedOn)
                         : query.OrderBy(c => c.CreatedOn);

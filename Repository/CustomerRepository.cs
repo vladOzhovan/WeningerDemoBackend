@@ -90,16 +90,15 @@ namespace WeningerDemoProject.Repository
             customerInDb.PhoneNumber = dto.PhoneNumber;
             customerInDb.Address = new Address
             {
-                ZipCode = dto.Adress.ZipCode,
-                Country = dto.Adress.Country ?? string.Empty,
-                City = dto.Adress.City ?? string.Empty,
-                Street = dto.Adress.Street ?? string.Empty,
-                HouseNumber = dto.Adress.HouseNumber ?? string.Empty,
-                Apartment = dto.Adress.Apartment ?? string.Empty
+                ZipCode = dto.Address.ZipCode,
+                Country = dto.Address.Country ?? string.Empty,
+                City = dto.Address.City ?? string.Empty,
+                Street = dto.Address.Street ?? string.Empty,
+                HouseNumber = dto.Address.HouseNumber ?? string.Empty,
+                Apartment = dto.Address.Apartment ?? string.Empty
             };
 
             await _context.SaveChangesAsync();
-
             return customerInDb;
         }
 

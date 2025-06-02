@@ -75,21 +75,47 @@ namespace WeningerDemoProject.Controllers
             return Ok(ordersDto);
         }
 
+        //[HttpGet("user-order-list")]
+        //[Authorize]
+        //public async Task<IActionResult> GetUserOrderList()
+        //{
+        //    var userId = _userManager.GetUserId(User);
+
+        //    var user = await _userManager.Users.Include(u => u.Orders).
+        //        ThenInclude(o => o.Customer).
+        //        ThenInclude(c => c.Address).
+        //        FirstOrDefaultAsync(u => u.Id == userId);
+
+        //    if (user == null)
+        //        return Unauthorized();
+
+        //    var orderList = user.Orders.OrderByDescending(o => o.CreatedOn).ToList();
+
+        //    var orderListDto = orderList.Select(o => o.ToOrderDto()).ToList();
+
+        //    return Ok(orderListDto);
+        //}
+
         [HttpGet("user-order-list")]
         [Authorize]
-        public async Task<IActionResult> GetUserOrderList()
+        public async Task<IActionResult> GetUserOrderList(
+            [FromQuery] string? sortBy, [FromQuery] bool isDescending = false)
         {
             var userId = _userManager.GetUserId(User);
 
-            var user = await _userManager.Users.Include(u => u.Orders).ThenInclude(o => o.Customer).
+            var user = await _userManager.Users.Include(u => u.Orders).
+                ThenInclude(o => o.Customer).
+                ThenInclude(c => c.Address).
                 FirstOrDefaultAsync(u => u.Id == userId);
 
             if (user == null)
                 return Unauthorized();
 
-            var orderList = user.Orders.OrderByDescending(o => o.CreatedOn).ToList();
+            var ordersQuery = user.Orders.AsQueryable();
 
-            var orderListDto = orderList.Select(o => o.ToOrderDto()).ToList();
+            ordersQuery.ApplySorting(sortBy, isDescending);
+
+            var orderListDto = ordersQuery.Select(o => o.ToOrderDto()).ToList();
 
             return Ok(orderListDto);
         }

@@ -1,4 +1,5 @@
 ﻿using System.ComponentModel.DataAnnotations;
+using WeningerDemoProject.Validators;
 
 namespace WeningerDemoProject.Dtos.Customer
 {
@@ -16,7 +17,7 @@ namespace WeningerDemoProject.Dtos.Customer
         [StringLength(50, MinimumLength = 2, ErrorMessage = "Second name must be between 2 and 50 characters.")]
         public string SecondName { get; set; } = string.Empty;
 
-        [EmailAddress(ErrorMessage = "Invalid email address.")]
+        [EmailAddressOrEmpty]
         public string Email { get; set; } = string.Empty;
         
         [RegularExpression(@"^\+?[0-9\s\-\(\)]{7,25}$", ErrorMessage = "Invalid phone number format.")]
