@@ -24,7 +24,7 @@ namespace WeningerDemoProject.Repository
         {
             var customers = _context.Customers.Include(c => c.Orders).Include(c => c.Address).AsQueryable();
             customers = customers.ApplySearch(query.Search);
-            customers = customers.ApplySorting(query.IsDescending, query.SortBy);
+            customers = customers.ApplySorting(query.SortBy, query.IsDescending);
             return await customers.ToListAsync();
         }
 

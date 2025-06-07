@@ -129,19 +129,23 @@ namespace WeningerDemoProject.Controllers
         [ValidateModel]
         public async Task<IActionResult> Login(LoginDto loginDto)
         {
-            var user = await _userManager.Users.FirstOrDefaultAsync(u => u.UserName.ToLower() == loginDto.UserName.ToLower());
+            var userName = loginDto.UserName?.Trim();
+            var password = loginDto.Password?.Trim();
 
-            _logger.LogInformation("Trying to log in user: {InputUserName}. Found in DB: {DbUserName}",
-                loginDto.UserName, user?.UserName);
+            if (string.IsNullOrWhiteSpace(userName) || string.IsNullOrWhiteSpace(password))
+                return BadRequest("Username & Password must not be empty!");
+
+            var user = await _userManager.Users.FirstOrDefaultAsync(u => u.UserName.ToLower() == userName.ToLower());
 
             if (user == null)
                 return Unauthorized("Invalid email or password");
 
-            var result = await _signInManager.CheckPasswordSignInAsync(user, loginDto.Password, false);
+            var result = await _signInManager.CheckPasswordSignInAsync(user, password, false);
 
             if (!result.Succeeded)
             {
-                _logger.LogWarning("Password check failed for user: {UserName}. IsLockedOut: {LockedOut}, IsNotAllowed: {NotAllowed}, RequiresTwoFactor: {Requires2FA}",
+                _logger.LogWarning("Password check failed for user: {UserName}. IsLockedOut: {LockedOut}, " +
+                    "IsNotAllowed: {NotAllowed}, RequiresTwoFactor: {Requires2FA}",
                     user.UserName, result.IsLockedOut, result.IsNotAllowed, result.RequiresTwoFactor);
 
                 return Unauthorized("Invalid email or password");
