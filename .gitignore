@@ -27,7 +27,6 @@ appsettings.*.json
 !appsettings.json       # <-- Оставляем базовый конфиг
 
 # Others
-*.db
 *.pidb
 *.cache
 *.pdb
