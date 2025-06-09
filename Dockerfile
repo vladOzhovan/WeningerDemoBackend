@@ -1,27 +1,31 @@
 # --- Stage 1: Restore & Build ---
+# Use the official .NET 8.0 SDK image to restore and build the application
 FROM mcr.microsoft.com/dotnet/sdk:8.0 AS build
 WORKDIR /src
 
-# Copy project file and restore dependencies
+# Copy the project file and restore dependencies
 COPY ["WeningerDemoProject.csproj", "./"]
 RUN dotnet restore "WeningerDemoProject.csproj"
 
-# Copy all source code and build the project
+# Copy the entire source code and build the project in Release mode
 COPY . .
 RUN dotnet build "WeningerDemoProject.csproj" -c Release -o /app/build
 
 # --- Stage 2: Publish ---
+# Publish the application to a folder for deployment
 FROM build AS publish
-
-# Publish the app into a folder for deployment
 RUN dotnet publish "WeningerDemoProject.csproj" -c Release -o /app/publish
 
 # --- Stage 3: Runtime ---
+# Use the official .NET 8.0 ASP.NET runtime image for a smaller final image
 FROM mcr.microsoft.com/dotnet/aspnet:8.0 AS final
 WORKDIR /app
 
-# Copy published output from the previous stage
+# Copy the published application (including the SQLite database file due to csproj settings)
 COPY --from=publish /app/publish .
 
-# Define the entry point for the container
+# Expose port 80 for HTTP traffic (default ASP.NET port)
+EXPOSE 80
+
+# Define the entry point to run the application
 ENTRYPOINT ["dotnet", "WeningerDemoProject.dll"]

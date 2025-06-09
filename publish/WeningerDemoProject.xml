@@ -1,0 +1,129 @@
+<?xml version="1.0"?>
+<doc>
+    <assembly>
+        <name>WeningerDemoProject</name>
+    </assembly>
+    <members>
+        <member name="M:WeningerDemoProject.Controllers.CustomerController.GetAll(WeningerDemoProject.Helpers.QueryObject)">
+            <summary>
+            Get all Customers
+            </summary>
+            <param name="query"></param>
+            <returns></returns>
+        </member>
+        <member name="M:WeningerDemoProject.Controllers.CustomerController.GetById(System.Int32)">
+            <summary>
+            Get a Customer by id
+            </summary>
+            <param name="id"></param>
+            <returns></returns>
+        </member>
+        <member name="M:WeningerDemoProject.Controllers.CustomerController.GetByNumber(System.Int32)">
+            <summary>
+            Get a Customer by number
+            </summary>
+            <param name="customerNumber"></param>
+            <returns></returns>
+        </member>
+        <member name="M:WeningerDemoProject.Controllers.CustomerController.Create(WeningerDemoProject.Dtos.Customer.CreateCustomerDto)">
+            <summary>
+            Create a Customer
+            </summary>
+            <param name="customerDto"></param>
+            <returns></returns>
+        </member>
+        <member name="M:WeningerDemoProject.Controllers.CustomerController.GenerateCustomers(System.Int32)">
+            <summary>
+            Generate customers
+            </summary>
+            <param name="count"></param>
+            <returns></returns>
+        </member>
+        <member name="M:WeningerDemoProject.Controllers.CustomerController.Delete(System.Int32)">
+            <summary>
+            Delete a Customer
+            </summary>
+            <param name="id"></param>
+            <returns></returns>
+        </member>
+        <member name="M:WeningerDemoProject.Controllers.CustomerController.DeleteMultiple(System.Collections.Generic.List{System.Int32})">
+            <summary>
+            Delete multiple
+            </summary>
+            <param name="ids"></param>
+            <returns></returns>
+        </member>
+        <member name="M:WeningerDemoProject.Controllers.CustomerController.Update(System.Int32,WeningerDemoProject.Dtos.Customer.UpdateCustomerDto)">
+            <summary>
+            Update a Customer
+            </summary>
+            <param name="id"></param>
+            <param name="customerDto"></param>
+            <returns></returns>
+        </member>
+        <member name="M:WeningerDemoProject.Controllers.OrderController.GetAll(WeningerDemoProject.Helpers.QueryObject)">
+            <summary>
+            Get all Orders
+            </summary>
+            <param></param>
+            <returns></returns>
+        </member>
+        <member name="M:WeningerDemoProject.Controllers.OrderController.GetById(System.Int32)">
+            <summary>
+            Get an Order by id
+            </summary>
+            <param name="id"></param>
+            <returns></returns>
+        </member>
+        <member name="M:WeningerDemoProject.Controllers.OrderController.GetByCustomerNumber(System.Int32)">
+            <summary>
+            Get Orders by Customer Number
+            </summary>
+            <param name="customerNumber"></param>
+            <returns></returns>
+        </member>
+        <member name="M:WeningerDemoProject.Controllers.OrderController.Create(System.Int32,WeningerDemoProject.Dtos.Order.CreateOrderDto)">
+            <summary>
+            Create an Order
+            </summary>
+            <param name="customerNumber"></param>
+            <param name="orderDto"></param>
+            <returns></returns>
+        </member>
+        <member name="M:WeningerDemoProject.Controllers.OrderController.Delete(System.Int32)">
+            <summary>
+            Delete an Order
+            </summary>
+            <param name="id"></param>
+            <returns></returns>
+        </member>
+        <member name="M:WeningerDemoProject.Controllers.OrderController.DeleteMultiple(System.Collections.Generic.List{System.Int32})">
+            <summary>
+            Delete multiple
+            </summary>
+            <param name="ids"></param>
+            <returns></returns>
+        </member>
+        <member name="M:WeningerDemoProject.Controllers.OrderController.Update(System.Int32,WeningerDemoProject.Dtos.Order.UpdateOrderDto)">
+            <summary>
+            Update an Order
+            </summary>
+            <param name="id"></param>
+            <param name="orderDto"></param>
+            <returns></returns>
+        </member>
+        <member name="M:WeningerDemoProject.Controllers.OrderController.UpdateStatus(System.Int32,WeningerDemoProject.Dtos.Order.UpdateOrderStatusDto)">
+            <summary>
+            Change Order status
+            </summary>
+            <param name="id"></param>
+            <param name="statusDto"></param>
+            <returns></returns>
+        </member>
+        <member name="M:WeningerDemoProject.Program.SeedRolesAsync(Microsoft.AspNetCore.Identity.RoleManager{Microsoft.AspNetCore.Identity.IdentityRole})">
+            <summary>
+            Ensure that "Admin" and "User" roles exist in database.
+            </summary>
+        </member>
+    </members>
+</doc>

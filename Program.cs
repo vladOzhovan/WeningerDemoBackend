@@ -7,10 +7,9 @@ using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.IdentityModel.Tokens;
 using WeningerDemoProject.Interfaces;
 using WeningerDemoProject.Repository;
-using WeningerDemoProject.Service;
-using Microsoft.OpenApi.Models;
 using System.Security.Claims;
-using Npgsql.EntityFrameworkCore.PostgreSQL;
+using Microsoft.OpenApi.Models;
+using WeningerDemoProject.Service;
 
 namespace WeningerDemoProject
 {
@@ -79,13 +78,15 @@ namespace WeningerDemoProject
                 });
             });
 
-            //builder.Services.AddDbContext<AppDbContext>(options =>
-            //    options.UseSqlite(builder.Configuration.GetConnectionString("DefaultConnection")));
+            // SQLite
+            builder.Services.AddDbContext<AppDbContext>(options =>
+                options.UseSqlite(builder.Configuration.GetConnectionString("DefaultConnection")));
 
-            builder.Services.AddDbContext<AppDbContext>(options => 
-                options.UseNpgsql(builder.Configuration.GetConnectionString("DefaultConnection"), 
-                npgsqlOptions => npgsqlOptions.EnableRetryOnFailure()
-            ));
+            // PostgreSQL
+            //builder.Services.AddDbContext<AppDbContext>(options => 
+            //    options.UseNpgsql(builder.Configuration.GetConnectionString("DefaultConnection"), 
+            //    npgsqlOptions => npgsqlOptions.EnableRetryOnFailure()
+            //));
 
             builder.Services.AddIdentity<AppUser, IdentityRole>(options =>
             {
@@ -131,8 +132,8 @@ namespace WeningerDemoProject
             using (var scope = app.Services.CreateScope())
             {
                 // Automatic migrations
-                var db = scope.ServiceProvider.GetRequiredService<AppDbContext>();
-                db.Database.Migrate();
+                //var db = scope.ServiceProvider.GetRequiredService<AppDbContext>();
+                //db.Database.Migrate();
 
                 // Chek if Admin and User roles exists
                 var services = scope.ServiceProvider;
