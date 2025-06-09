@@ -1,5 +1,4 @@
 ﻿using System.ComponentModel.DataAnnotations;
-using WeningerDemoProject.Models;
 using WeningerDemoProject.Validators;
 
 namespace WeningerDemoProject.Dtos.Customer

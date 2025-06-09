@@ -10,6 +10,7 @@ using WeningerDemoProject.Repository;
 using WeningerDemoProject.Service;
 using Microsoft.OpenApi.Models;
 using System.Security.Claims;
+using Npgsql.EntityFrameworkCore.PostgreSQL;
 
 namespace WeningerDemoProject
 {
@@ -78,10 +79,13 @@ namespace WeningerDemoProject
                 });
             });
 
-            builder.Services.AddDbContext<AppDbContext>(options =>
-            {
-                options.UseSqlite(builder.Configuration.GetConnectionString("DefaultConnection"));
-            });
+            //builder.Services.AddDbContext<AppDbContext>(options =>
+            //    options.UseSqlite(builder.Configuration.GetConnectionString("DefaultConnection")));
+
+            builder.Services.AddDbContext<AppDbContext>(options => 
+                options.UseNpgsql(builder.Configuration.GetConnectionString("DefaultConnection"), 
+                npgsqlOptions => npgsqlOptions.EnableRetryOnFailure()
+            ));
 
             builder.Services.AddIdentity<AppUser, IdentityRole>(options =>
             {
@@ -118,14 +122,19 @@ namespace WeningerDemoProject
             builder.Services.AddScoped<ICustomerRepository, CustomerRepository>();
             builder.Services.AddScoped<IOrderRepository, OrderRepository>();
             builder.Services.AddScoped<ITokenService, TokenService>();
+            builder.Services.AddScoped<IOrderActionService, OrderActionService>();
 
             builder.Services.AddSingleton<Random>();
 
             var app = builder.Build();
 
-            // Chek if Admin and User roles exists
             using (var scope = app.Services.CreateScope())
             {
+                // Automatic migrations
+                var db = scope.ServiceProvider.GetRequiredService<AppDbContext>();
+                db.Database.Migrate();
+
+                // Chek if Admin and User roles exists
                 var services = scope.ServiceProvider;
 
                 try

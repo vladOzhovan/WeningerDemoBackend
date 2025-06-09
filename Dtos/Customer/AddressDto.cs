@@ -1,6 +1,4 @@
-﻿using System.ComponentModel.DataAnnotations;
-
-namespace WeningerDemoProject.Dtos.Customer
+﻿namespace WeningerDemoProject.Dtos.Customer
 {
     public class AddressDto
     {

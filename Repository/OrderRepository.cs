@@ -62,6 +62,33 @@ namespace WeningerDemoProject.Repository
             return orderInDb;
         }
 
+        public async Task<bool> DeleteMultipleAsync(List<int> ids)
+        {
+            await using var transaction = await _context.Database.BeginTransactionAsync();
+
+            try
+            {
+                foreach (var id in ids)
+                {
+                    var order = await _context.Orders.FindAsync(id);
+
+                    if (order == null)
+                        throw new KeyNotFoundException($"Order with id {id} not found");
+                    
+                    _context.Orders.Remove(order);
+                }
+
+                await _context.SaveChangesAsync();
+                await transaction.CommitAsync();
+                return true;
+            }
+            catch
+            {
+                await transaction.RollbackAsync();
+                return false;
+            }
+        }
+
         public async Task<Order?> UpdateAsync(int id, UpdateOrderDto orderDto)
         {
             var orderInDb = await _context.Orders.Include(o => o.Customer).ThenInclude(c => c.Address).

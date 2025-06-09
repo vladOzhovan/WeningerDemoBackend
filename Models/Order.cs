@@ -30,7 +30,7 @@
             Status = OrderStatus.Completed;
         }
 
-        public void Cancle()
+        public void Cancel()
         {
             TakenByUserId = null;
             Status = OrderStatus.Canceled;

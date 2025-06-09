@@ -1,6 +1,4 @@
-﻿using WeningerDemoProject.Models;
-
-namespace WeningerDemoProject.Dtos.Order
+﻿namespace WeningerDemoProject.Dtos.Order
 {
     public class OrderDto
     {

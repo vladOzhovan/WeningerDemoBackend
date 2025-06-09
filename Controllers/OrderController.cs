@@ -18,12 +18,21 @@ namespace WeningerDemoProject.Controllers
         private readonly IOrderRepository _orderRepo;
         private readonly ICustomerRepository _customerRepo;
         private readonly UserManager<AppUser> _userManager;
-        public OrderController(IOrderRepository orderRepo, ICustomerRepository customRepo, UserManager<AppUser> userManager)
+        private readonly IOrderActionService _orderActionService;
+        public OrderController(
+            IOrderRepository orderRepo, 
+            ICustomerRepository customRepo,
+            IOrderActionService orderActionService,
+            UserManager<AppUser> userManager)
         {
             _orderRepo = orderRepo;
             _customerRepo = customRepo;
+            _orderActionService = orderActionService;
             _userManager = userManager;
         }
+
+        private string CurrentUserId => _userManager.GetUserId(User) ??
+            throw new UnauthorizedAccessException("User is not authenticated");
 
         /// <summary>
         /// Get all Orders
@@ -67,11 +76,10 @@ namespace WeningerDemoProject.Controllers
         {
             var orders = await _orderRepo.GetByCustomerNumberAsync(customerNumber);
 
-            //if (!orders.Any())
-            //    return NotFound("No orders found for this customer number");
+            if (!orders.Any())
+                return NotFound("No orders found for this customer number");
 
             var ordersDto = orders.Select(o => o.ToOrderDto());
-
             return Ok(ordersDto);
         }
 
@@ -112,11 +120,8 @@ namespace WeningerDemoProject.Controllers
                 return Unauthorized();
 
             var ordersQuery = user.Orders.AsQueryable();
-
             ordersQuery.ApplySorting(sortBy, isDescending);
-
             var orderListDto = ordersQuery.Select(o => o.ToOrderDto()).ToList();
-
             return Ok(orderListDto);
         }
 
@@ -137,11 +142,8 @@ namespace WeningerDemoProject.Controllers
                 return NotFound("Customer does not exists");
 
             var orderModel = orderDto.ToOrderFromCreateDto(customerId.Value);
-
             await _orderRepo.CreateAsync(orderModel);
-
             var createdOrder = await _orderRepo.GetByIdAsync(orderModel.Id);
-
             return CreatedAtAction(nameof(GetById), new { id = createdOrder?.Id }, createdOrder?.ToOrderDto());
         }
 
@@ -175,8 +177,11 @@ namespace WeningerDemoProject.Controllers
             if (ids == null || ids.Count == 0)
                 return BadRequest("No order IDs provided");
 
-            foreach (var id in ids)
-                await _orderRepo.DeleteAsync(id);
+            var success = await _orderRepo.DeleteMultipleAsync(ids);
+
+            if (!success)
+                return StatusCode(StatusCodes.Status500InternalServerError,
+                    "Failed to delete all specified orders. No changes were applied");
 
             return NoContent();
         }
@@ -224,117 +229,84 @@ namespace WeningerDemoProject.Controllers
         [Authorize(Roles = "User")]
         public async Task<IActionResult> TakeOrder([FromRoute] int orderId)
         {
-            var order = await _orderRepo.GetByIdAsync(orderId);
-
-            if (order == null)
+            try
+            {
+                var dto = await _orderActionService.TakeOrderAsync(orderId, CurrentUserId);
+                return Ok(dto);
+            }
+            catch (KeyNotFoundException)
+            {
                 return NotFound("Order not found");
-
-            if (order.TakenByUserId != null)
-                return BadRequest("Order is already taken by someone else");
-
-            var userId = _userManager.GetUserId(User);
-
-            if (userId == null)
-                return Unauthorized();
-
-            order.Take(userId);
-
-            await _orderRepo.SaveChangesAsync();
-
-            return Ok(order.ToOrderDto());
+            }
+            catch (InvalidOperationException ex)
+            {
+                return BadRequest(ex.Message);
+            }
         }
 
         [HttpPut("release/{orderId:int}")]
         [Authorize(Roles = "User")]
         public async Task<IActionResult> ReleaseOrder([FromRoute] int orderId)
         {
-            var order = await _orderRepo.GetByIdAsync(orderId);
-
-            if (order == null)
-                return NotFound("Order not found");
-
-            var userId = _userManager.GetUserId(User);
-
-            if (userId == null)
-                return Unauthorized();
-
-            if (order.TakenByUserId != userId)
+            try
             {
-                return new ObjectResult(new ProblemDetails
-                {
-                    Status = StatusCodes.Status403Forbidden,
-                    Title = "Forbidden",
-                    Detail = "You can only release orders you have taken"
-                });
+                var dto = await _orderActionService.ReleaseOrderAsync(orderId, CurrentUserId);
+                return Ok(dto);
             }
-
-            order.Release();
-            await _orderRepo.SaveChangesAsync();
-
-            return Ok(order.ToOrderDto());
-        }
-
-        [HttpPut("cancel/{orderId:int}")]
-        [Authorize(Roles = "User")]
-        public async Task<IActionResult> CancelOrder([FromRoute] int orderId)
-        {
-            var userId = _userManager.GetUserId(User);
-
-            if (userId == null)
-                return Unauthorized();
-
-            var order = await _orderRepo.GetByIdAsync(orderId);
-
-            if (order == null)
-                return NotFound("Order not found");
-
-            if (order.TakenByUserId != userId)
+            catch (KeyNotFoundException)
             {
-                return new ObjectResult(new ProblemDetails
-                {
-                    Status = StatusCodes.Status403Forbidden,
-                    Title = "Forbidden",
-                    Detail = "You can only cancle orders you have taken"
-                });
+                return NotFound("Order not found");
             }
-
-            order.Cancle();
-            await _orderRepo.SaveChangesAsync();
-
-            return Ok(order.ToOrderDto());
+            catch (UnauthorizedAccessException)
+            {
+                return Forbid();
+            }
         }
 
         [HttpPut("complete/{orderId:int}")]
         [Authorize(Roles = "User")]
         public async Task<IActionResult> CompleteOrder([FromRoute] int orderId)
         {
-            var order = await _orderRepo.GetByIdAsync(orderId);
-
-            if (order == null)
-                return NotFound("Order not found");
-
-            var userId = _userManager.GetUserId(User);
-
-            if (userId == null)
-                return Unauthorized();
-
-            if (order.TakenByUserId != userId)
+            try
             {
-                return new ObjectResult(new ProblemDetails
-                {
-                    Status = StatusCodes.Status403Forbidden,
-                    Title = "Forbidden",
-                    Detail = "You can only complete orders you have taken"
-                });
+                var dto = await _orderActionService.CompleteOrderAsync(orderId, CurrentUserId);
+                return Ok(dto);
             }
+            catch (KeyNotFoundException)
+            {
+                return NotFound("Order not found");
+            }
+            catch (UnauthorizedAccessException)
+            {
+                return Forbid();
+            }
+            catch (InvalidOperationException ex)
+            {
+                return BadRequest(ex.Message);
+            }
+        }
 
-            if (order.Status == OrderStatus.Completed)
-                return BadRequest("Order is already completed");
-
-            order.Complete();
-            await _orderRepo.SaveChangesAsync();
-
-            return Ok(order.ToOrderDto());
+        [HttpPut("cancel/{orderId:int}")]
+        [Authorize(Roles = "User")]
+        public async Task<IActionResult> CancelOrder([FromRoute] int orderId)
+        {
+            try
+            {
+                var dto = await _orderActionService.CancelOrderAsync(orderId, CurrentUserId);
+                return Ok(dto);
+            }
+            catch (KeyNotFoundException)
+            {
+                return NotFound("Order not found");
+            }
+            catch (UnauthorizedAccessException)
+            {
+                return Forbid();
+            }
+            catch (InvalidOperationException ex)
+            {
+                return BadRequest(ex.Message);
+            }
         }
     }
 }
