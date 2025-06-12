@@ -172,27 +172,31 @@ namespace WeningerDemoProject.Controllers
             if (user == null)
                 return NotFound(string.Format("User {0} not found", id));
 
-            var userByName = dto.UserName != null
-                ? await _userManager.FindByNameAsync(dto.UserName.Trim())
+            var dtoUserName = dto.UserName?.Trim();
+            var dtoEmail = dto.Email?.Trim();
+
+            var userByName = dtoUserName != null
+                ? await _userManager.FindByNameAsync(dtoUserName)
                 : null;
 
-            var userByEmail = dto.Email != null
-                ? await _userManager.FindByEmailAsync(dto.Email.Trim());
+            var userByEmail = dtoEmail != null
+                ? await _userManager.FindByEmailAsync(dtoEmail)
+                : null;
 
-            if (dto.UserName != null)
+            if (dtoUserName != null)
             {
                 if (userByName != null && userByName.Id != id)
-                    return BadRequest($"Username {dto.UserName} is already taken.");
+                    return BadRequest($"Username {dtoUserName} is already taken.");
                 
-                user.UserName = dto.UserName.Trim();
+                user.UserName = dtoUserName;
             }
             
-            if (dto.Email != null)
+            if (dtoEmail != null)
             {
-                if (userByEmail.Email != null && userByEmail.id != id)
-                    return BadRequest($"Email '{dto.Email.Trim()}' is already taken");
+                if (userByEmail?.Email != null && userByEmail.Id != id)
+                    return BadRequest($"Email '{dtoEmail}' is already taken");
 
-                user.Email = dto.Email.Trim();
+                user.Email = dtoEmail;
             }
 
             var updateResult = await _userManager.UpdateAsync(user);
