@@ -26,6 +26,43 @@ namespace WeningerDemoProject.Controllers
             _logger = logger;
         }
 
+        [HttpPost("login")]
+        [ValidateModel]
+        public async Task<IActionResult> Login(LoginDto loginDto)
+        {
+            var userName = loginDto.UserName?.Trim();
+            var password = loginDto.Password?.Trim();
+
+            if (string.IsNullOrWhiteSpace(userName) || string.IsNullOrWhiteSpace(password))
+                return BadRequest("Username & Password must not be empty!");
+
+            var user = await _userManager.Users.FirstOrDefaultAsync(u => u.UserName.ToLower() == userName.ToLower());
+
+            if (user == null)
+                return Unauthorized("Invalid email or password");
+
+            var result = await _signInManager.CheckPasswordSignInAsync(user, password, false);
+
+            if (!result.Succeeded)
+            {
+                _logger.LogWarning("Password check failed for user: {UserName}. IsLockedOut: {LockedOut}, " +
+                    "IsNotAllowed: {NotAllowed}, RequiresTwoFactor: {Requires2FA}",
+                    user.UserName, result.IsLockedOut, result.IsNotAllowed, result.RequiresTwoFactor);
+
+                return Unauthorized("Invalid email or password");
+            }
+
+            return Ok(
+                new NewUserDto
+                {
+                    UserName = user.UserName,
+                    Email = user.Email,
+                    Token = _tokenService.CreateToken(user),
+                    Roles = await _userManager.GetRolesAsync(user)
+                }
+            );
+        }
+
         [HttpPost("register-user")]
         [Authorize(Roles = "Admin")]
         [ValidateModel]
@@ -125,43 +162,6 @@ namespace WeningerDemoProject.Controllers
             }
         }
 
-        [HttpPost("login")]
-        [ValidateModel]
-        public async Task<IActionResult> Login(LoginDto loginDto)
-        {
-            var userName = loginDto.UserName?.Trim();
-            var password = loginDto.Password?.Trim();
-
-            if (string.IsNullOrWhiteSpace(userName) || string.IsNullOrWhiteSpace(password))
-                return BadRequest("Username & Password must not be empty!");
-
-            var user = await _userManager.Users.FirstOrDefaultAsync(u => u.UserName.ToLower() == userName.ToLower());
-
-            if (user == null)
-                return Unauthorized("Invalid email or password");
-
-            var result = await _signInManager.CheckPasswordSignInAsync(user, password, false);
-
-            if (!result.Succeeded)
-            {
-                _logger.LogWarning("Password check failed for user: {UserName}. IsLockedOut: {LockedOut}, " +
-                    "IsNotAllowed: {NotAllowed}, RequiresTwoFactor: {Requires2FA}",
-                    user.UserName, result.IsLockedOut, result.IsNotAllowed, result.RequiresTwoFactor);
-
-                return Unauthorized("Invalid email or password");
-            }
-
-            return Ok(
-                new NewUserDto
-                {
-                    UserName = user.UserName,
-                    Email = user.Email,
-                    Token = _tokenService.CreateToken(user),
-                    Roles = await _userManager.GetRolesAsync(user)
-                }
-            );
-        }
-
         [HttpPut("update-user/{id}")]
         [Authorize(Roles = "Admin")]
         [ValidateModel]
@@ -172,17 +172,28 @@ namespace WeningerDemoProject.Controllers
             if (user == null)
                 return NotFound(string.Format("User {0} not found", id));
 
+            var userByName = dto.UserName != null
+                ? await _userManager.FindByNameAsync(dto.UserName.Trim())
+                : null;
+
+            var userByEmail = dto.Email != null
+                ? await _userManager.FindByEmailAsync(dto.Email.Trim());
+
             if (dto.UserName != null)
             {
-                var existingUser = await _userManager.FindByNameAsync(dto.UserName);
-                if (existingUser != null && existingUser.Id != id)
-                    return BadRequest($"Username {dto.UserName} id already taken.");
+                if (userByName != null && userByName.Id != id)
+                    return BadRequest($"Username {dto.UserName} is already taken.");
                 
-                user.UserName = dto.UserName;
+                user.UserName = dto.UserName.Trim();
             }
             
             if (dto.Email != null)
-                user.Email = dto.Email;
+            {
+                if (userByEmail.Email != null && userByEmail.id != id)
+                    return BadRequest($"Email '{dto.Email.Trim()}' is already taken");
+
+                user.Email = dto.Email.Trim();
+            }
 
             var updateResult = await _userManager.UpdateAsync(user);
 
@@ -190,20 +201,21 @@ namespace WeningerDemoProject.Controllers
                 return StatusCode(500,
                     $"Failed to update user data: {string.Join("; ", updateResult.Errors.Select(e => e.Description))}");
 
-            if (dto.Roles != null)
-            {
-                var currentRoles = await _userManager.GetRolesAsync(user);
-
-                var rolesToRemove = currentRoles.Except(dto.Roles);
-                if (rolesToRemove.Any())
-                    await _userManager.RemoveFromRolesAsync(user, rolesToRemove);
-
-                var rolesToAdd = dto.Roles.Except(currentRoles);
-                if (rolesToAdd.Any())
-                    await _userManager.AddToRolesAsync(user, rolesToAdd);
-            }
-
             return NoContent();
+            #region updateRoles
+            //if (dto.Roles != null)
+            //{
+            //    var currentRoles = await _userManager.GetRolesAsync(user);
+
+            //    var rolesToRemove = currentRoles.Except(dto.Roles);
+            //    if (rolesToRemove.Any())
+            //        await _userManager.RemoveFromRolesAsync(user, rolesToRemove);
+
+            //    var rolesToAdd = dto.Roles.Except(currentRoles);
+            //    if (rolesToAdd.Any())
+            //        await _userManager.AddToRolesAsync(user, rolesToAdd);
+            //}
+            #endregion
         }
 
         [HttpDelete("delete-user/{id}")]
