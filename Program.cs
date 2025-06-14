@@ -82,7 +82,7 @@ namespace WeningerDemoProject
             var rawUrl = Environment.GetEnvironmentVariable("DATABASE_URL");
             string connectionString;
 
-            if (!string.IsNullOrEmpty(rawUrl) && rawUrl.StartsWith("postgres://"))
+            if (!string.IsNullOrEmpty(rawUrl) && rawUrl.StartsWith("postgresql://"))
             {
                 var uri = new Uri(rawUrl);
                 var userInfo = uri.UserInfo.Split(':');
