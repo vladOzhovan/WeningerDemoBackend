@@ -78,15 +78,32 @@ namespace WeningerDemoProject
                 });
             });
 
-            // SQLite
-            builder.Services.AddDbContext<AppDbContext>(options =>
-                options.UseSqlite(builder.Configuration.GetConnectionString("DefaultConnection")));
+            // PostgreSQL via DATABASE_URL
+            var rawUrl = Environment.GetEnvironmentVariable("DATABASE_URL");
+            string connectionString;
+
+            if (!string.IsNullOrEmpty(rawUrl) && rawUrl.StartsWith("postgres://"))
+            {
+                var uri = new Uri(rawUrl);
+                var userInfo = uri.UserInfo.Split(':');
+
+                connectionString = $"Host={uri.Host};Port={uri.Port};Database={uri.AbsolutePath.TrimStart('/')};" +
+                    $"Username={userInfo[0]};Password={userInfo[1]};SSL Mode=Require;Trust Server Certificate=true";
+            }
+            else
+            {
+                throw new InvalidOperationException("DATABASE_URL environment variable is missing or invalid");
+            }
 
             // PostgreSQL
-            //builder.Services.AddDbContext<AppDbContext>(options => 
-            //    options.UseNpgsql(builder.Configuration.GetConnectionString("DefaultConnection"), 
-            //    npgsqlOptions => npgsqlOptions.EnableRetryOnFailure()
-            //));
+            builder.Services.AddDbContext<AppDbContext>(options =>
+                options.UseNpgsql(builder.Configuration.GetConnectionString("DefaultConnection"),
+                npgsqlOptions => npgsqlOptions.EnableRetryOnFailure()
+            ));
+
+            // SQLite
+            //builder.Services.AddDbContext<AppDbContext>(options =>
+            //    options.UseSqlite(builder.Configuration.GetConnectionString("DefaultConnection")));
 
             builder.Services.AddIdentity<AppUser, IdentityRole>(options =>
             {
@@ -132,8 +149,8 @@ namespace WeningerDemoProject
             using (var scope = app.Services.CreateScope())
             {
                 // Automatic migrations
-                //var db = scope.ServiceProvider.GetRequiredService<AppDbContext>();
-                //db.Database.Migrate();
+                var db = scope.ServiceProvider.GetRequiredService<AppDbContext>();
+                db.Database.Migrate();
 
                 // Chek if Admin and User roles exists
                 var services = scope.ServiceProvider;
