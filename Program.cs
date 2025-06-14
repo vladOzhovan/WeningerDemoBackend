@@ -95,9 +95,8 @@ namespace WeningerDemoProject
                 throw new InvalidOperationException("DATABASE_URL environment variable is missing or invalid");
             }
 
-            // PostgreSQL
             builder.Services.AddDbContext<AppDbContext>(options =>
-                options.UseNpgsql(builder.Configuration.GetConnectionString("DefaultConnection"),
+                options.UseNpgsql(connectionString, 
                 npgsqlOptions => npgsqlOptions.EnableRetryOnFailure()
             ));
 
@@ -150,6 +149,8 @@ namespace WeningerDemoProject
             {
                 // Automatic migrations
                 var db = scope.ServiceProvider.GetRequiredService<AppDbContext>();
+                var connectedDb = db.Database.GetDbConnection();
+                Console.WriteLine($"Using database: {connectedDb.ConnectionString}");
                 db.Database.Migrate();
 
                 // Chek if Admin and User roles exists
