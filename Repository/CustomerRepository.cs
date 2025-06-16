@@ -138,7 +138,8 @@ namespace WeningerDemoProject.Repository
                 {
                     CustomerNumber = firstNumberOfCustomerInList + i,
                     FirstName = firstNames[_random.Next(firstNames.Length)],
-                    SecondName = secondNames[_random.Next(secondNames.Length)]
+                    SecondName = secondNames[_random.Next(secondNames.Length)],
+                    CreatedOn = DateTime.UtcNow
                 });
             }
 
