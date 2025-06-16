@@ -248,6 +248,15 @@ You can test all endpoints directly from the browser.
 ![Swagger UI](assets/SwaggerScreenShot/swagger-ui_main_1.JPG)
 ![Swagger UI](assets/SwaggerScreenShot/swagger-ui_main_2.JPG)
 ![Swagger UI](assets/SwaggerScreenShot/swagger-ui_main_3.JPG)
+![Swagger UI](assets/SwaggerScreenShot/swagger-ui_main_req_1U1.JPG)
+![Swagger UI](assets/SwaggerScreenShot/swagger-ui_main_req_1U2.JPG)
+![Swagger UI](assets/SwaggerScreenShot/swagger-ui_main_req_1U3.JPG)
+![Swagger UI](assets/SwaggerScreenShot/swagger-ui_main_req_2C1.JPG)
+![Swagger UI](assets/SwaggerScreenShot/swagger-ui_main_req_2C2.JPG)
+![Swagger UI](assets/SwaggerScreenShot/swagger-ui_main_req_2C3.JPG)
+![Swagger UI](assets/SwaggerScreenShot/swagger-ui_main_req_2C4.JPG)
+![Swagger UI](assets/SwaggerScreenShot/swagger-ui_main_req_3C1.JPG)
+![Swagger UI](assets/SwaggerScreenShot/swagger-ui_main_req_4O1.JPG)
 
 ---
 
