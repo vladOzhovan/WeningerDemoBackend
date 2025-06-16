@@ -140,8 +140,8 @@ Base URL (production): `https://weningerdemobackend.onrender.com/api` Base URL (
 
 ### Authorize
 
-userName: Admin_1 or User1
-password: Admin_1 or User1
+ - userName: Admin_1 or User1
+ - password: Admin_1 or User1
 
 ### Customers
 
