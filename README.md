@@ -245,9 +245,9 @@ https://weningerdemobackend.onrender.com
 You can test all endpoints directly from the browser.
 
 ### Preview
-![Swagger UI](assets/SwaggerScreenShot/swagger-ui_main_1.jpg)
-![Swagger UI](assets/SwaggerScreenShot/swagger-ui_main_2.jpg)
-![Swagger UI](assets/SwaggerScreenShot/swagger-ui_main_3.jpg)
+![Swagger UI](assets/SwaggerScreenShot/swagger-ui_main_1.JPG)
+![Swagger UI](assets/SwaggerScreenShot/swagger-ui_main_2.JPG)
+![Swagger UI](assets/SwaggerScreenShot/swagger-ui_main_3.JPG)
 
 ---
 
