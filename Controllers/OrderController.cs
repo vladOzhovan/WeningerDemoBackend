@@ -225,6 +225,11 @@ namespace WeningerDemoProject.Controllers
             return Ok(orderInDb.ToOrderDto());
         }
 
+        /// <summary>
+        /// Take an order into work (for User role only)
+        /// </summary>
+        /// <param name="orderId"></param>
+        /// <returns></returns>
         [HttpPut("take/{orderId:int}")]
         [Authorize(Roles = "User")]
         public async Task<IActionResult> TakeOrder([FromRoute] int orderId)

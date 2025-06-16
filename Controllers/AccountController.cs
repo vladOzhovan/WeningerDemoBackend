@@ -118,6 +118,7 @@ namespace WeningerDemoProject.Controllers
         }
 
         [HttpPost("register-admin")]
+        [Authorize(Roles = "Admin")]
         [ValidateModel]
         public async Task<IActionResult> RegisterAdmin([FromBody] RegisterDto registerDto)
         {

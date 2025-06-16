@@ -24,7 +24,7 @@ secrets.json
 
 # Configuration
 appsettings.*.json
-!appsettings.json       # <-- Оставляем базовый конфиг
+!appsettings.json
 
 # Others
 *.db
@@ -32,7 +32,7 @@ appsettings.*.json
 *.cache
 *.pdb
 
-# Rider (если используешь JetBrains)
+# Rider (if use JetBrains)
 .idea/
 
 # macOS
