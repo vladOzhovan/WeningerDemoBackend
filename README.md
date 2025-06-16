@@ -138,6 +138,11 @@ Continuous deployment can be set up by connecting the GitHub repository to Rende
 
 Base URL (production): `https://weningerdemobackend.onrender.com/api` Base URL (local): `http://localhost:5246/api`
 
+### Authorize
+
+userName: Admin_1 or User1
+password: Admin_1 or User1
+
 ### Customers
 
 - **Get all customers**
@@ -244,7 +249,7 @@ https://weningerdemobackend.onrender.com
 
 You can test all endpoints directly from the browser.
 
-### Preview
+### Preview Swagger
 ![Swagger UI](assets/SwaggerScreenShot/swagger-ui_main_1.JPG)
 ![Swagger UI](assets/SwaggerScreenShot/swagger-ui_main_2.JPG)
 ![Swagger UI](assets/SwaggerScreenShot/swagger-ui_main_3.JPG)
