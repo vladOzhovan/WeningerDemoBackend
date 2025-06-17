@@ -29,7 +29,7 @@ namespace WeningerDemoProject.Repository
                 Email = dto.Email,
                 Role = "User",
                 CreatedAt = DateTime.UtcNow,
-                ExpiresAt = DateTime.UtcNow.Add(dto.ValidTime)
+                ExpiresAt = DateTime.UtcNow.AddDays(dto.ValidDays)
             };
 
             await _context.Invitations.AddAsync(invitation);

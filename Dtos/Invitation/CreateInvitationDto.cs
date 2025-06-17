@@ -6,7 +6,8 @@ namespace WeningerDemoProject.Dtos.Invitation
     {
         [Required, EmailAddress]
         public string Email { get; set; } = string.Empty;
-        public string Role { get; set; } = string.Empty;
-        public TimeSpan ValidTime { get; set; } = TimeSpan.FromDays(1);
+        public string Role { get; set; } = "User";
+        [Range(1, 365, ErrorMessage = "ValidDays must be between 1 and 365")]
+        public int ValidDays { get; set; } = 1;
     }
 }
