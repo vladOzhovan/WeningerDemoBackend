@@ -77,10 +77,12 @@ namespace WeningerDemoProject.Controllers
                 return BadRequest("Invalid or expired invitation token.");
 
             var scheme = Request?.Scheme ?? "https";
-            var host = Request?.Host.Value ?? "example.com";
+            var host = Request?.Host.HasValue == true ? Request.Host.Value : "example.com";
             Console.WriteLine($"[InviteUser] Scheme: {scheme}, Host: {host}");
 
             var regLink = $"{scheme}://{host}/register?token={invitation.Id}";
+            _logger.LogInformation($"Registration link created: {regLink}");
+
             await _emailSender.SendInvitationAsync(dto.Email, regLink);
             return Ok(new { invitation.Id, Link = regLink, ExpiresAt = invitation.ExpiresAt });
         }
