@@ -57,7 +57,6 @@ namespace WeningerDemoProject.Helpers
                         : query.OrderBy(c => c.CreatedOn);
                     break;
             }
-
             return query;
         }
     }

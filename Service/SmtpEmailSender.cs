@@ -15,7 +15,7 @@ namespace WeningerDemoProject.Service
 
             _client = new SmtpClient(smtp.Host, smtp.Port)
             {
-                Credentials = new NetworkCredential(smtp.User, smtp.Pass),
+                Credentials = new NetworkCredential(smtp.User, smtp.Password),
                 EnableSsl = true
             };
             _from = smtp.From;
@@ -43,7 +43,7 @@ namespace WeningerDemoProject.Service
                     ? port
                     : throw new FormatException("Smtp:Port must be a valid integer"),
                 User = config["Smtp:User"] ?? throw new ArgumentNullException(nameof(config), "Smtp:User not configured"),
-                Pass = config["Smtp:Password"] ?? throw new ArgumentNullException(nameof(config), "Smtp:Pass not configured"),
+                Password = config["Smtp:Password"] ?? throw new ArgumentNullException(nameof(config), "Smtp:Pass not configured"),
                 From = config["Smtp:From"] ?? throw new ArgumentNullException(nameof(config), "Smtp:From not configured")
             };
         }

@@ -21,7 +21,6 @@ namespace WeningerDemoProject.Repository
             
             orders = orders.ApplySearch(query.Search);
             orders = orders.ApplySorting(query.SortBy, query.IsDescending);
-
             return await orders.ToListAsync();
         }
 
@@ -58,7 +57,6 @@ namespace WeningerDemoProject.Repository
 
             _context.Orders.Remove(orderInDb);
             await _context.SaveChangesAsync();
-
             return orderInDb;
         }
 
@@ -101,7 +99,6 @@ namespace WeningerDemoProject.Repository
             orderInDb.Description = orderDto.Description;
 
             await _context.SaveChangesAsync();
-            
             return orderInDb;
         }
 
@@ -114,7 +111,6 @@ namespace WeningerDemoProject.Repository
 
             orderInDb.Status = orderStatusDto.Status;
             await _context.SaveChangesAsync();
-
             return orderInDb;
         }
     }
