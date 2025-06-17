@@ -2,15 +2,16 @@
 
 namespace WeningerDemoProject.Dtos.Account
 {
-    public class RegisterDto
+    public class RegisterAdminDto
     {
-        [Required]
-        public Guid Token { get; set; }
-
         [Required, StringLength(30, MinimumLength = 3)]
         public string? UserName { get; set; }
 
         [Required, MinLength(7)]
         public string? Password { get; set; }
+
+        [Required]
+        [EmailAddress]
+        public string? Email { get; set; }
     }
 }

@@ -142,6 +142,8 @@ namespace WeningerDemoProject
             builder.Services.AddScoped<IOrderRepository, OrderRepository>();
             builder.Services.AddScoped<ITokenService, TokenService>();
             builder.Services.AddScoped<IOrderActionService, OrderActionService>();
+            builder.Services.AddScoped<IInvitationRepository, InvitationRepository>();
+            builder.Services.AddScoped<IEmailSender, SmtpEmailSender>();
 
             builder.Services.AddSingleton<Random>();
 
@@ -153,7 +155,17 @@ namespace WeningerDemoProject
                 var db = scope.ServiceProvider.GetRequiredService<AppDbContext>();
                 var connectedDb = db.Database.GetDbConnection();
                 Console.WriteLine($"Using database: {connectedDb.ConnectionString}");
-                db.Database.Migrate();
+
+                try
+                {
+                    db.Database.Migrate();
+                }
+                catch (Exception ex)
+                {
+                    var logger = scope.ServiceProvider.GetRequiredService<ILogger<Program>>();
+                    logger.LogCritical(ex, "Error during atomatic migrations");
+                    throw;
+                }
 
                 // Chek if Admin and User roles exists
                 var services = scope.ServiceProvider;

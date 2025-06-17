@@ -1,11 +1,13 @@
-﻿using Microsoft.AspNetCore.Mvc;
-using WeningerDemoProject.Models;
+﻿using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Identity;
-using WeningerDemoProject.Dtos.Account;
-using WeningerDemoProject.Interfaces;
+using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.EntityFrameworkCore.Metadata;
+using WeningerDemoProject.Dtos.Account;
+using WeningerDemoProject.Dtos.Invitation;
+using WeningerDemoProject.Interfaces;
+using WeningerDemoProject.Models;
 using WeningerDemoProject.Validators;
-using Microsoft.AspNetCore.Authorization;
 
 namespace WeningerDemoProject.Controllers
 {
@@ -15,6 +17,8 @@ namespace WeningerDemoProject.Controllers
     {
         private readonly UserManager<AppUser> _userManager;
         private readonly SignInManager<AppUser> _signInManager;
+        private readonly IInvitationRepository _invitationRepo;
+        private readonly IEmailSender _emailSender;
         private readonly ITokenService _tokenService;
         private readonly ILogger<AccountController> _logger;
 
@@ -63,52 +67,104 @@ namespace WeningerDemoProject.Controllers
             );
         }
 
-        [HttpPost("register-user")]
-        [Authorize(Roles = "Admin")]
+        [HttpPost("invite")]
         [ValidateModel]
-        public async Task<IActionResult> RegisterUser([FromBody] RegisterDto registerDto)
+        [Authorize(Roles = "Admin")]
+        public async Task<IActionResult> InviteUser([FromBody] CreateInvitationDto dto)
         {
+            var invitation = await _invitationRepo.CreateAsync(dto);
+
+            if (invitation == null || invitation.IsUsed == true || invitation.ExpiresAt < DateTime.UtcNow) 
+                return BadRequest("Invalid or expired invitation token.");
+
+            var regLink = $"{Request.Scheme}://{Request.Host}/register?token={invitation.Id}";
+
+            await _emailSender.SendInvitationAsync(dto.Email, regLink);
+
+            return Ok(new { invitation.Id, Link = regLink, ExpiresAt = invitation.ExpiresAt });
+        }
+
+        [HttpPost("register-user")]
+        [ValidateModel]
+        public async Task<IActionResult> RegisterUser([FromBody] RegisterDto dto, Guid Id)
+        {
+            var invitation = await _invitationRepo.GetByIdAsync(dto.Token);
+            if (invitation == null || invitation.IsUsed == true || invitation.ExpiresAt < DateTime.UtcNow)
+                return BadRequest("Invalid or expired invitation token.");
+
             try
             {
                 var appUser = new AppUser
                 {
-                    UserName = registerDto.UserName,
-                    Email = registerDto.Email
+                    UserName = dto.UserName,
+                    Email = invitation.Email
                 };
 
-                var createdUser = await _userManager.CreateAsync(appUser, registerDto.Password);
+                var result = await _userManager.CreateAsync(appUser, dto.Password);
 
-                if (createdUser.Succeeded)
+                if (!result.Succeeded)
                 {
-                    var roleResult = await _userManager.AddToRoleAsync(appUser, "User");
-
-                    if (roleResult.Succeeded)
-                    {
-                        return Ok(
-                            new NewUserDto
-                            {
-                                UserName = appUser.UserName,
-                                Email = appUser.Email,
-                                Token = _tokenService.CreateToken(appUser),
-                                Roles = await _userManager.GetRolesAsync(appUser)
-                            }
-                        );
-                    }
-                    else
-                    {
-                        _logger.LogError("Role assignment failed for user: {UserName}. Error: {Errors}", appUser.UserName,
-                            string.Join(", ", roleResult.Errors.Select(e => e.Description)));
-
-                        return StatusCode(500, "Role assignment failed. Please try again later.");
-                    }
-                }
-                else
-                {
-                    _logger.LogError("User creation failed for {UserName}. Errors: {Errors}", registerDto.UserName, 
-                        string.Join(", ", createdUser.Errors.Select(e => e.Description)));
+                    _logger.LogError("User creation failed for {UserName}. Errors: {Errors}", dto.UserName,
+                        string.Join(", ", result.Errors.Select(e => e.Description)));
 
                     return StatusCode(500, "User creation failed. Please try again later.");
                 }
+
+                var roleResult = await _userManager.AddToRoleAsync(appUser, "User");
+
+                if (!roleResult.Succeeded)
+                {
+                    _logger.LogError("Role assignment failed for user: {UserName}. Error: {Errors}", appUser.UserName,
+                            string.Join(", ", roleResult.Errors.Select(e => e.Description)));
+
+                    return StatusCode(500, "Role assignment failed. Please try again later.");
+                }
+
+                await _invitationRepo.MarkUsedAsync(invitation);
+
+                var token = _tokenService.CreateToken(appUser);
+
+                return Ok(
+                    new NewUserDto
+                    {
+                        UserName = appUser.UserName,
+                        Email = appUser.Email,
+                        Token = token,
+                        Roles = await _userManager.GetRolesAsync(appUser)
+                    }
+                );
+
+                //if (result.Succeeded)
+                //{
+                //    var roleResult = await _userManager.AddToRoleAsync(appUser, "User");
+
+                //    if (roleResult.Succeeded)
+                //    {
+                //        return Ok(
+                //            new NewUserDto
+                //            {
+                //                UserName = appUser.UserName,
+                //                Email = appUser.Email,
+                //                Token = _tokenService.CreateToken(appUser),
+                //                Roles = await _userManager.GetRolesAsync(appUser)
+                //            }
+                //        );
+                //    }
+                //    else
+                //    {
+                //        _logger.LogError("Role assignment failed for user: {UserName}. Error: {Errors}", appUser.UserName,
+                //            string.Join(", ", roleResult.Errors.Select(e => e.Description)));
+
+                //        return StatusCode(500, "Role assignment failed. Please try again later.");
+                //    }
+                //}
+                //else
+                //{
+                //    _logger.LogError("User creation failed for {UserName}. Errors: {Errors}", dto.UserName, 
+                //        string.Join(", ", result.Errors.Select(e => e.Description)));
+
+                //    return StatusCode(500, "User creation failed. Please try again later.");
+                //}
             }
             catch (Exception ex)
             {
@@ -118,23 +174,23 @@ namespace WeningerDemoProject.Controllers
         }
 
         [HttpPost("register-admin")]
-        [Authorize(Roles = "Admin")]
         [ValidateModel]
-        public async Task<IActionResult> RegisterAdmin([FromBody] RegisterDto registerDto)
+        [Authorize(Roles = "Admin")]
+        public async Task<IActionResult> RegisterAdmin([FromBody] RegisterAdminDto dto)
         {
             try
             {
                 var appUser = new AppUser
                 {
-                    UserName = registerDto.UserName,
-                    Email = registerDto.Email
+                    UserName = dto.UserName,
+                    Email = dto.Email
                 };
 
-                var createdUser = await _userManager.CreateAsync(appUser, registerDto.Password);
+                var createdUser = await _userManager.CreateAsync(appUser, dto.Password);
 
                 if (!createdUser.Succeeded)
                 {
-                    _logger.LogError("Admin creation failed for {UserName}. Errors: {Errors}", registerDto.UserName,
+                    _logger.LogError("Admin creation failed for {UserName}. Errors: {Errors}", dto.UserName,
                         string.Join(", ", createdUser.Errors.Select(e => e.Description)));
                     return StatusCode(500, "Admin creation failed. Try again later");
                 }
@@ -163,8 +219,8 @@ namespace WeningerDemoProject.Controllers
         }
 
         [HttpPut("update-user/{id}")]
-        [Authorize(Roles = "Admin")]
         [ValidateModel]
+        [Authorize(Roles = "Admin")]
         public async Task<IActionResult> UpdateUser(string id, [FromBody] UpdateUserDto dto)
         {
             var user = await _userManager.FindByIdAsync(id);
@@ -248,8 +304,8 @@ namespace WeningerDemoProject.Controllers
         }
 
         [HttpPost("change-password")]
-        [Authorize]
         [ValidateModel]
+        [Authorize]
         public async Task<IActionResult> ChangePassword([FromBody] ChangePasswordDto dto)
         {
             var userId = _userManager.GetUserId(User);

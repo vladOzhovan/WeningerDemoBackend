@@ -1,7 +1,7 @@
-﻿using Microsoft.AspNetCore.Identity;
-using Microsoft.AspNetCore.Identity.EntityFrameworkCore;
+﻿using WeningerDemoProject.Models;
+using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
-using WeningerDemoProject.Models;
+using Microsoft.AspNetCore.Identity.EntityFrameworkCore;
 
 namespace WeningerDemoProject.Data
 {
@@ -10,6 +10,7 @@ namespace WeningerDemoProject.Data
         public AppDbContext(DbContextOptions<AppDbContext> options) : base(options) { }
         public DbSet<Customer> Customers { get; set; }
         public DbSet<Order> Orders { get; set; }
+        public DbSet<Invitation> Invitations { get; set; }
 
         protected override void OnModelCreating(ModelBuilder builder)
         {

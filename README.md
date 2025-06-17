@@ -52,7 +52,7 @@ The project follows a clean layered architecture:
 
 - .NET 6 SDK or later
 - Git
-- PostgreSQL (if running locally)
+- PostgreSQL ([Render.com](https://render.com)) Database: SQLite (local) → PostgreSQL (Render)
 
 ---
 
