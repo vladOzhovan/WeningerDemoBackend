@@ -2,7 +2,6 @@
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
-using Microsoft.EntityFrameworkCore.Metadata;
 using WeningerDemoProject.Dtos.Account;
 using WeningerDemoProject.Dtos.Invitation;
 using WeningerDemoProject.Interfaces;
@@ -77,10 +76,12 @@ namespace WeningerDemoProject.Controllers
             if (invitation == null || invitation.IsUsed == true || invitation.ExpiresAt < DateTime.UtcNow) 
                 return BadRequest("Invalid or expired invitation token.");
 
-            var regLink = $"{Request.Scheme}://{Request.Host}/register?token={invitation.Id}";
+            var scheme = Request?.Scheme ?? "https";
+            var host = Request?.Host.Value ?? "example.com";
+            Console.WriteLine($"[InviteUser] Scheme: {scheme}, Host: {host}");
 
+            var regLink = $"{scheme}://{host}/register?token={invitation.Id}";
             await _emailSender.SendInvitationAsync(dto.Email, regLink);
-
             return Ok(new { invitation.Id, Link = regLink, ExpiresAt = invitation.ExpiresAt });
         }
 

@@ -1,14 +1,15 @@
-using System.Reflection;
-using WeningerDemoProject.Data;
-using WeningerDemoProject.Models;
-using Microsoft.EntityFrameworkCore;
-using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
+using Microsoft.AspNetCore.HttpOverrides;
+using Microsoft.AspNetCore.Identity;
+using Microsoft.EntityFrameworkCore;
 using Microsoft.IdentityModel.Tokens;
-using WeningerDemoProject.Interfaces;
-using WeningerDemoProject.Repository;
-using System.Security.Claims;
 using Microsoft.OpenApi.Models;
+using System.Reflection;
+using System.Security.Claims;
+using WeningerDemoProject.Data;
+using WeningerDemoProject.Interfaces;
+using WeningerDemoProject.Models;
+using WeningerDemoProject.Repository;
 using WeningerDemoProject.Service;
 
 namespace WeningerDemoProject
@@ -181,6 +182,11 @@ namespace WeningerDemoProject
                     loggerAdminRole.LogError(ex, "An error occured seeding roles");
                 }
             }
+
+            app.UseForwardedHeaders(new ForwardedHeadersOptions
+            {
+                ForwardedHeaders = ForwardedHeaders.XForwardedFor | ForwardedHeaders.XForwardedProto
+            });
 
             if (app.Environment.IsDevelopment())
                 app.UseDeveloperExceptionPage();
