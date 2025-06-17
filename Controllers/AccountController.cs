@@ -76,7 +76,7 @@ namespace WeningerDemoProject.Controllers
 
         [HttpPost("invite")]
         [ValidateModel]
-        [Authorize(Roles = "Admin")]
+        //[Authorize(Roles = "Admin")]
         public async Task<IActionResult> InviteUser([FromBody] CreateInvitationDto dto)
         {
             var invitation = await _invitationRepo.CreateAsync(dto);
@@ -186,7 +186,7 @@ namespace WeningerDemoProject.Controllers
 
         [HttpPost("register-admin")]
         [ValidateModel]
-        [Authorize(Roles = "Admin")]
+        //[Authorize(Roles = "Admin")]
         public async Task<IActionResult> RegisterAdmin([FromBody] RegisterAdminDto dto)
         {
             try
@@ -231,7 +231,7 @@ namespace WeningerDemoProject.Controllers
 
         [HttpPut("update-user/{id}")]
         [ValidateModel]
-        [Authorize(Roles = "Admin")]
+        //[Authorize(Roles = "Admin")]
         public async Task<IActionResult> UpdateUser(string id, [FromBody] UpdateUserDto dto)
         {
             var user = await _userManager.FindByIdAsync(id);
@@ -290,7 +290,7 @@ namespace WeningerDemoProject.Controllers
         }
 
         [HttpDelete("delete-user/{id}")]
-        [Authorize(Roles = "Admin")]
+        //[Authorize(Roles = "Admin")]
         public async Task<IActionResult> DeleteUser(string id)
         {
             var user = await _userManager.FindByIdAsync(id);
@@ -316,7 +316,7 @@ namespace WeningerDemoProject.Controllers
 
         [HttpPost("change-password")]
         [ValidateModel]
-        [Authorize]
+        //[Authorize]
         public async Task<IActionResult> ChangePassword([FromBody] ChangePasswordDto dto)
         {
             var userId = _userManager.GetUserId(User);
@@ -340,7 +340,7 @@ namespace WeningerDemoProject.Controllers
         }
 
         [HttpGet("get-users")]
-        [Authorize(Roles = "Admin")]
+        //[Authorize(Roles = "Admin")]
         public async Task<IActionResult> GetAllUsers()
         {
             try

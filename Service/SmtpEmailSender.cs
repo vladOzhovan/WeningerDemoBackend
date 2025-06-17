@@ -43,7 +43,7 @@ namespace WeningerDemoProject.Service
                     ? port
                     : throw new FormatException("Smtp:Port must be a valid integer"),
                 User = config["Smtp:User"] ?? throw new ArgumentNullException(nameof(config), "Smtp:User not configured"),
-                Pass = config["Smtp:Pass"] ?? throw new ArgumentNullException(nameof(config), "Smtp:Pass not configured"),
+                Pass = config["Smtp:Password"] ?? throw new ArgumentNullException(nameof(config), "Smtp:Pass not configured"),
                 From = config["Smtp:From"] ?? throw new ArgumentNullException(nameof(config), "Smtp:From not configured")
             };
         }
