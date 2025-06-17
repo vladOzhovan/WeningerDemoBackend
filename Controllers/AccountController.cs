@@ -21,10 +21,18 @@ namespace WeningerDemoProject.Controllers
         private readonly ITokenService _tokenService;
         private readonly ILogger<AccountController> _logger;
 
-        public AccountController(UserManager<AppUser> userManager, ITokenService tokenService, SignInManager<AppUser> signInManager, ILogger<AccountController> logger)
+        public AccountController(
+            UserManager<AppUser> userManager,
+            SignInManager<AppUser> signInManager,
+            IEmailSender emailSender,
+            IInvitationRepository invitationRepo,
+            ITokenService tokenService,
+            ILogger<AccountController> logger)
         {
             _userManager = userManager;
             _signInManager = signInManager;
+            _emailSender = emailSender;
+            _invitationRepo = invitationRepo;
             _tokenService = tokenService;
             _logger = logger;
         }
