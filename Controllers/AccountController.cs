@@ -111,7 +111,7 @@ namespace WeningerDemoProject.Controllers
                 var appUser = new AppUser
                 {
                     UserName = dto.UserName,
-                    Email = invitation.Email
+                    Email = dto.Email
                 };
 
                 var result = await _userManager.CreateAsync(appUser, dto.Password);
@@ -121,7 +121,7 @@ namespace WeningerDemoProject.Controllers
                     _logger.LogError("User creation failed for {UserName}. Errors: {Errors}", dto.UserName,
                         string.Join(", ", result.Errors.Select(e => e.Description)));
 
-                    return StatusCode(500, "User creation failed. Please try again later.");
+                    return StatusCode(500, "User creation failed. Please try again.");
                 }
 
                 var roleResult = await _userManager.AddToRoleAsync(appUser, "User");
@@ -131,7 +131,7 @@ namespace WeningerDemoProject.Controllers
                     _logger.LogError("Role assignment failed for user: {UserName}. Error: {Errors}", appUser.UserName,
                             string.Join(", ", roleResult.Errors.Select(e => e.Description)));
 
-                    return StatusCode(500, "Role assignment failed. Please try again later.");
+                    return StatusCode(500, "Role assignment failed. Please try again.");
                 }
 
                 await _invitationRepo.MarkUsedAsync(invitation);
