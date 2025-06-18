@@ -66,22 +66,4 @@ namespace WeningerDemoProject.Service
             GC.SuppressFinalize(this);
         }
     }
-
-    //public static class SmtpConfigHelper
-    //{
-    //    public static SmtpSettings GetSmtpSettings(IConfiguration config)
-    //    {
-    //        return new SmtpSettings
-    //        {
-    //            Host = config["Smtp:Host"] ?? throw new ArgumentNullException(nameof(config), "Smtp:Host not configured"),
-    //            Port = int.TryParse(config["Smtp:Port"], out var port)
-    //                ? port
-    //                : throw new FormatException("Smtp:Port must be a valid integer"),
-    //            User = config["Smtp:User"] ?? throw new ArgumentNullException(nameof(config), "Smtp:User not configured"),
-    //            Password = config["Smtp:Password"] ?? throw new ArgumentNullException(nameof(config), "Smtp:Pass not configured"),
-    //            From = config["Smtp:From"] ?? throw new ArgumentNullException(nameof(config), "Smtp:From not configured")
-    //        };
-    //    }
-    //}
-        
 }

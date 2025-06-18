@@ -88,7 +88,7 @@ namespace WeningerDemoProject.Controllers
             var host = Request?.Host.HasValue == true ? Request.Host.Value : "example.com";
             Console.WriteLine($"[InviteUser] Scheme: {scheme}, Host: {host}");
 
-            var regLink = $"{scheme}://{host}/register?token={invitation.Id}";
+            var regLink = $"{scheme}://{host}/register-user?token={invitation.Id}";
             _logger.LogInformation($"Registration link created: {regLink}");
 
             await _emailSender.SendInvitationAsync(dto.Email, regLink);
@@ -97,7 +97,7 @@ namespace WeningerDemoProject.Controllers
 
         [HttpPost("register-user")]
         [ValidateModel]
-        public async Task<IActionResult> RegisterUser([FromBody] RegisterDto dto, Guid Id)
+        public async Task<IActionResult> RegisterUser([FromBody] RegisterDto dto)
         {
             var invitation = await _invitationRepo.GetByIdAsync(dto.Token);
             if (invitation == null || invitation.IsUsed == true || invitation.ExpiresAt < DateTime.UtcNow)
