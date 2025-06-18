@@ -103,6 +103,9 @@ namespace WeningerDemoProject.Controllers
             if (invitation == null || invitation.IsUsed == true || invitation.ExpiresAt < DateTime.UtcNow)
                 return BadRequest("Invalid or expired invitation token.");
 
+            if (invitation.Email != dto.Email)
+                return BadRequest("Invalid email address");
+
             try
             {
                 var appUser = new AppUser
