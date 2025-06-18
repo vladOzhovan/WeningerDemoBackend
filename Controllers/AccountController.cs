@@ -144,38 +144,6 @@ namespace WeningerDemoProject.Controllers
                         Roles = await _userManager.GetRolesAsync(appUser)
                     }
                 );
-
-                //if (result.Succeeded)
-                //{
-                //    var roleResult = await _userManager.AddToRoleAsync(appUser, "User");
-
-                //    if (roleResult.Succeeded)
-                //    {
-                //        return Ok(
-                //            new NewUserDto
-                //            {
-                //                UserName = appUser.UserName,
-                //                Email = appUser.Email,
-                //                Token = _tokenService.CreateToken(appUser),
-                //                Roles = await _userManager.GetRolesAsync(appUser)
-                //            }
-                //        );
-                //    }
-                //    else
-                //    {
-                //        _logger.LogError("Role assignment failed for user: {UserName}. Error: {Errors}", appUser.UserName,
-                //            string.Join(", ", roleResult.Errors.Select(e => e.Description)));
-
-                //        return StatusCode(500, "Role assignment failed. Please try again later.");
-                //    }
-                //}
-                //else
-                //{
-                //    _logger.LogError("User creation failed for {UserName}. Errors: {Errors}", dto.UserName, 
-                //        string.Join(", ", result.Errors.Select(e => e.Description)));
-
-                //    return StatusCode(500, "User creation failed. Please try again later.");
-                //}
             }
             catch (Exception ex)
             {

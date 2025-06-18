@@ -1,51 +1,87 @@
 ﻿using System.Net;
 using System.Net.Mail;
 using WeningerDemoProject.Models;
+using Microsoft.Extensions.Options;
 using WeningerDemoProject.Interfaces;
 
 namespace WeningerDemoProject.Service
 {
-    public class SmtpEmailSender : IEmailSender
+    public class SmtpEmailSender : IEmailSender, IDisposable
     {
+        private readonly SmtpSettings _smtp;
         private readonly SmtpClient _client;
-        private readonly string _from;
-        public SmtpEmailSender(IConfiguration config)
+        private bool _disposed;
+        public SmtpEmailSender(IOptions<SmtpSettings> options)
         {
-            var smtp = SmtpConfigHelper.GetSmtpSettings(config);
+            _smtp = options.Value ?? throw new ArgumentException(nameof(options), "SMTP settings are not configured");
 
-            _client = new SmtpClient(smtp.Host, smtp.Port)
+            // Validate required settings
+            if (string.IsNullOrWhiteSpace(_smtp.Host) ||
+                string.IsNullOrWhiteSpace(_smtp.User) ||
+                string.IsNullOrWhiteSpace(_smtp.Password) ||
+                string.IsNullOrWhiteSpace(_smtp.From))
             {
-                Credentials = new NetworkCredential(smtp.User, smtp.Password),
-                EnableSsl = true
+                throw new ArgumentException(nameof(options), "SMTP settings must include Host, User, Password, and From address.");
+            }
+
+            _client = new SmtpClient(_smtp.Host, _smtp.Port)
+            {
+                 Credentials = new NetworkCredential(_smtp.User, _smtp.Password),
+                 EnableSsl = true,
+                 DeliveryMethod = SmtpDeliveryMethod.Network,
+                 Timeout = 10000 // 10 sec
             };
-            _from = smtp.From;
         }
 
         public async Task SendInvitationAsync(string toEmail, string link)
         {
-            var message = new MailMessage(_from, toEmail)
+            if (string.IsNullOrWhiteSpace(toEmail))
+                throw new ArgumentException("Recipient email is required.", nameof(toEmail));
+            if (string.IsNullOrWhiteSpace(link))
+                throw new ArgumentException("Invitation link is required.", nameof(link));
+
+            using var message = new MailMessage(_smtp.From, toEmail)
             {
                 Subject = "Register Invitation",
-                Body = $"Click the link to register {link}"
+                Body = $"Click the link to register: {link}",
+                IsBodyHtml = false
             };
             await _client.SendMailAsync(message);
         }
-    }
 
-    public static class SmtpConfigHelper
-    {
-        public static SmtpSettings GetSmtpSettings(IConfiguration config)
+        protected virtual void Dispose(bool disposing)
         {
-            return new SmtpSettings
+            if (!_disposed)
             {
-                Host = config["Smtp:Host"] ?? throw new ArgumentNullException(nameof(config), "Smtp:Host not configured"),
-                Port = int.TryParse(config["Smtp:Port"], out var port)
-                    ? port
-                    : throw new FormatException("Smtp:Port must be a valid integer"),
-                User = config["Smtp:User"] ?? throw new ArgumentNullException(nameof(config), "Smtp:User not configured"),
-                Password = config["Smtp:Password"] ?? throw new ArgumentNullException(nameof(config), "Smtp:Pass not configured"),
-                From = config["Smtp:From"] ?? throw new ArgumentNullException(nameof(config), "Smtp:From not configured")
-            };
+                if (disposing)
+                    _client.Dispose();
+                
+                _disposed = true;
+            }
+        }
+
+        public void Dispose()
+        {
+            Dispose(disposing: true);
+            GC.SuppressFinalize(this);
         }
     }
+
+    //public static class SmtpConfigHelper
+    //{
+    //    public static SmtpSettings GetSmtpSettings(IConfiguration config)
+    //    {
+    //        return new SmtpSettings
+    //        {
+    //            Host = config["Smtp:Host"] ?? throw new ArgumentNullException(nameof(config), "Smtp:Host not configured"),
+    //            Port = int.TryParse(config["Smtp:Port"], out var port)
+    //                ? port
+    //                : throw new FormatException("Smtp:Port must be a valid integer"),
+    //            User = config["Smtp:User"] ?? throw new ArgumentNullException(nameof(config), "Smtp:User not configured"),
+    //            Password = config["Smtp:Password"] ?? throw new ArgumentNullException(nameof(config), "Smtp:Pass not configured"),
+    //            From = config["Smtp:From"] ?? throw new ArgumentNullException(nameof(config), "Smtp:From not configured")
+    //        };
+    //    }
+    //}
+        
 }

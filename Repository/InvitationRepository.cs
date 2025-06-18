@@ -16,12 +16,14 @@ namespace WeningerDemoProject.Repository
 
         public async Task<Invitation> CreateAsync(CreateInvitationDto dto)
         {
-            var existing = await _context.Invitations.
-                Where(i => i.Email == dto.Email && !i.IsUsed && !i.IsExpired).
-                ToListAsync();
+            var existing = await _context.Invitations.Where(i => i.Email == dto.Email).ToListAsync();
+            var valid = existing.Where(i => !i.IsUsed && i.ExpiresAt > DateTime.UtcNow);
 
-            foreach (var old in existing)
-                old.UsedAt = DateTime.UtcNow;
+            if (existing != null)
+            {
+                foreach (var old in valid)
+                    old.UsedAt = DateTime.UtcNow;
+            }
 
             var invitation = new Invitation
             {

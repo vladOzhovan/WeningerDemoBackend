@@ -1,16 +1,16 @@
-using Microsoft.AspNetCore.Authentication.JwtBearer;
-using Microsoft.AspNetCore.HttpOverrides;
-using Microsoft.AspNetCore.Identity;
-using Microsoft.EntityFrameworkCore;
-using Microsoft.IdentityModel.Tokens;
-using Microsoft.OpenApi.Models;
 using System.Reflection;
 using System.Security.Claims;
+using Microsoft.OpenApi.Models;
 using WeningerDemoProject.Data;
-using WeningerDemoProject.Interfaces;
 using WeningerDemoProject.Models;
-using WeningerDemoProject.Repository;
 using WeningerDemoProject.Service;
+using Microsoft.AspNetCore.Identity;
+using Microsoft.EntityFrameworkCore;
+using WeningerDemoProject.Repository;
+using WeningerDemoProject.Interfaces;
+using Microsoft.IdentityModel.Tokens;
+using Microsoft.AspNetCore.HttpOverrides;
+using Microsoft.AspNetCore.Authentication.JwtBearer;
 
 namespace WeningerDemoProject
 {
@@ -104,7 +104,7 @@ namespace WeningerDemoProject
             ));
 
             // SQLite
-            //builder.Services.AddDbContext<AppDbContext>(options =>
+            // builder.Services.AddDbContext<AppDbContext>(options =>
             //    options.UseSqlite(builder.Configuration.GetConnectionString("DefaultConnection")));
 
             builder.Services.AddIdentity<AppUser, IdentityRole>(options =>
@@ -139,13 +139,14 @@ namespace WeningerDemoProject
                 };
             });
 
+            builder.Services.Configure<SmtpSettings>(builder.Configuration.GetSection("Smtp"));
+
             builder.Services.AddScoped<ICustomerRepository, CustomerRepository>();
             builder.Services.AddScoped<IOrderRepository, OrderRepository>();
             builder.Services.AddScoped<ITokenService, TokenService>();
             builder.Services.AddScoped<IOrderActionService, OrderActionService>();
             builder.Services.AddScoped<IInvitationRepository, InvitationRepository>();
             builder.Services.AddScoped<IEmailSender, SmtpEmailSender>();
-
             builder.Services.AddSingleton<Random>();
 
             var app = builder.Build();
@@ -201,7 +202,7 @@ namespace WeningerDemoProject
                 c.RoutePrefix = string.Empty;
             });
 
-            //app.UseHttpsRedirection();
+            app.UseHttpsRedirection();
             app.UseAuthentication();
             app.UseAuthorization();
             app.MapControllers();
