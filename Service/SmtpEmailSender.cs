@@ -43,8 +43,9 @@ namespace WeningerDemoProject.Service
             using var message = new MailMessage(_smtp.From, toEmail)
             {
                 Subject = "Register Invitation",
-                Body = $"Click the link to register: {link}",
+                Body = link,
                 IsBodyHtml = false
+                //Body = $"Click the link to register: {link}",
             };
             await _client.SendMailAsync(message);
         }

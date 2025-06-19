@@ -156,7 +156,7 @@ namespace WeningerDemoProject
                 // Automatic migrations
                 var db = scope.ServiceProvider.GetRequiredService<AppDbContext>();
                 var connectedDb = db.Database.GetDbConnection();
-                Console.WriteLine($"Using database: {connectedDb.ConnectionString}");
+                //Console.WriteLine($"Using database: {connectedDb.ConnectionString}");
 
                 try
                 {

@@ -88,11 +88,13 @@ namespace WeningerDemoProject.Controllers
             var host = Request?.Host.HasValue == true ? Request.Host.Value : "example.com";
             Console.WriteLine($"[InviteUser] Scheme: {scheme}, Host: {host}");
 
-            var regLink = $"{scheme}://{host}/register-user?token={invitation.Id}";
+            //var regLink = $"{scheme}://{host}/register-user?token={invitation.Id}";
+            var regLink = invitation.Id.ToString();
             _logger.LogInformation($"Registration link created: {regLink}");
 
             await _emailSender.SendInvitationAsync(dto.Email, regLink);
-            return Ok(new { invitation.Id, Link = regLink, ExpiresAt = invitation.ExpiresAt });
+            return Ok(new { invitation.Id, ExpiresAt = invitation.ExpiresAt });
+            //return Ok(new { invitation.Id, Link = regLink, ExpiresAt = invitation.ExpiresAt });
         }
 
         [HttpPost("register-user")]
